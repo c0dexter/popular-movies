@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Popular Movies App</string>
+    <string name="movie_thumbnail_desc">Movie thumbnail</string>
+    <string name="api_key"></string> <!-- TODO: REMOVE API KEY BEFORE MAKING COMMIT!!!!!! -->
+</resources>

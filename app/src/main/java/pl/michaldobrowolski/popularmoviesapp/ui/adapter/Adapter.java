@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import pl.michaldobrowolski.popularmoviesapp.api.Model.pojo.MultipleResource;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
 import pl.michaldobrowolski.popularmoviesapp.R;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {

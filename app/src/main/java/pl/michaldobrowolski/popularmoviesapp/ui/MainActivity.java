@@ -10,8 +10,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.michaldobrowolski.popularmoviesapp.api.Model.pojo.MultipleResource;
-import pl.michaldobrowolski.popularmoviesapp.api.service.ApiFactor;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
+import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.Adapter;
@@ -19,32 +19,29 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static pl.michaldobrowolski.popularmoviesapp.api.Model.pojo.MultipleResource.Movie.getMoviePosterUrl;
+import static pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource.Movie.getMoviePosterUrl;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getClass().getSimpleName();
 
     ApiInterface apiInterface;
-    //ApiClient apiClient;
+    ApiClient apiClient;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private List<MultipleResource.Movie> mMovieItems;
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
-    String API_KEY = ""; //TODO: REMOVE it before commit
-    //TODO: MOVE this to Shared Preferences
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        apiInterface = ApiFactor.getClient().create(ApiInterface.class);
-        //apiClient = ApiFactor.getClient().create(ApiClient.class);
+        apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        searchOption(2);
+        searchOption(1);
         call.enqueue(new Callback<MultipleResource>() {
             @Override
             public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
@@ -68,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<MultipleResource> call, Throwable t) {
                 call.cancel();
+                Log.e(TAG, "onFailure: ", t);
             }
         });
     }
@@ -80,13 +78,13 @@ public class MainActivity extends AppCompatActivity {
 
         switch (searchOption) {
             case 0:
-                call = apiInterface.mostPopularMovies(API_KEY);
+                call = apiInterface.mostPopularMovies();
                 return;
             case 1:
-                call = apiInterface.topRatedMovies(API_KEY);
+                call = apiInterface.topRatedMovies();
                 return;
             default:
-                call = apiInterface.mostPopularMovies(API_KEY);
+                call = apiInterface.mostPopularMovies();
         }
     }
 

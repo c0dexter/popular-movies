@@ -1,6 +1,6 @@
 package pl.michaldobrowolski.popularmoviesapp.api.service;
 
-import pl.michaldobrowolski.popularmoviesapp.api.Model.pojo.MultipleResource;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -24,8 +24,8 @@ public interface ApiInterface {
     // Example Poster Path:     http://image.tmdb.org/t/p/w185//jjPJ4s3DWZZvI4vw8Xfi4Vqa1Q8.jpg
 
     @GET("3/movie/top_rated")
-    Call<MultipleResource> topRatedMovies(@Query("api_key") String api_key);
+    Call<MultipleResource> topRatedMovies();
 
     @GET("3/movie/popular")
-    Call<MultipleResource> mostPopularMovies(@Query("api_key") String api_key);
+    Call<MultipleResource> mostPopularMovies();
 }

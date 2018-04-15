@@ -19,8 +19,7 @@ public class ApiClient {
     private static final String TAG = ApiClient.class.getClass().getClass().getSimpleName();
 
     public static Retrofit getClient() {
-        final String apiKey = "";   //TODO: MOVE this to Shared Preferences
-
+        final String apiKey = ""; //TODO: remove API Key before makeing a push
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -32,6 +31,7 @@ public class ApiClient {
                 HttpUrl httpUrl = original.url();
 
                 HttpUrl newHttpUrl = httpUrl.newBuilder().addQueryParameter("api_key", apiKey).build();
+
                 Request.Builder requestBuilder = original.newBuilder().url(newHttpUrl);
 
                 Request request = requestBuilder.build();
@@ -40,8 +40,7 @@ public class ApiClient {
         }).build();
 
         String BASE_URL = "http://api.themoviedb.org/";
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(client)
+        Retrofit retrofit = new Retrofit.Builder().client(client)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

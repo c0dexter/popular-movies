@@ -5,7 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getClass().getSimpleName();
 
     ApiInterface apiInterface;
-    ApiClient apiClient;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private List<MultipleResource.Movie> mMovieItems;
@@ -36,12 +39,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(myToolbar);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewMainActivity);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        searchOption(1);
+        searchOption(0);
         call.enqueue(new Callback<MultipleResource>() {
             @Override
             public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
@@ -72,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This method set the proper endpoint of search based on taken options
+     *
      * @param searchOption - [int] 0 for MOST POPULAR movies, 1 - for TOP RATED movies
      */
     public void searchOption(int searchOption) {
@@ -88,9 +96,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }
-
-
-
-
-

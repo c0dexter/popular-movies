@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Popular Movies App</string>
     <string name="movie_thumbnail_desc">Movie thumbnail</string>
+    <string name="title_activity_most_popular">MostPopularActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="most_popular">Most popular</string>
+    <string name="top_rated">Top rated</string>
 </resources>

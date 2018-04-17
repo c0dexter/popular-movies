@@ -1,5 +1,6 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -13,27 +14,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import pl.michaldobrowolski.popularmoviesapp.R;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
-import pl.michaldobrowolski.popularmoviesapp.R;
-import pl.michaldobrowolski.popularmoviesapp.ui.adapter.Adapter;
+import pl.michaldobrowolski.popularmoviesapp.ui.adapter.MovieAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource.Movie.getMoviePosterUrl;
-
-public class MainActivity extends AppCompatActivity {
-    private final String TAG = this.getClass().getClass().getSimpleName();
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+    private final String TAG = this.getClass().getSimpleName();
 
     ApiInterface apiInterface;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-    private List<MultipleResource.Movie> mMovieItems;
+    private List<Movie> mMovieItems;
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
 
@@ -54,29 +53,13 @@ public class MainActivity extends AppCompatActivity {
         mostPopularMovies();
     }
 
-    public void mostPopularMovies(){
+    public void mostPopularMovies() {
         call = apiInterface.mostPopularMovies();
         call.enqueue(new Callback<MultipleResource>() {
             @Override
             public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
                 Log.d("LOG: Response Code: ", response.code() + "");
-
-                if(response.isSuccessful()){
-                    MultipleResource resource = response.body();
-                    List<MultipleResource.Movie> moviesList = resource.resultMovieItems;
-                    mMovieItems = new ArrayList<>();
-                    mAdapter = new Adapter(mMovieItems, getApplicationContext());
-                    mRecyclerView.setAdapter(mAdapter);
-
-                    for (MultipleResource.Movie movie : moviesList) {
-                        MultipleResource.Movie movieResut = new MultipleResource.Movie(getMoviePosterUrl("w185", movie.posterPath));
-                        mMovieItems.add(movieResut);
-                    }
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "Error. Fetching data failed :(", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Response code: " + response.code());
-                }
+                fetchingData(response);
             }
 
             @Override
@@ -87,29 +70,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void topRatedMovies(){
+    private void fetchingData(@NonNull Response<MultipleResource> response) {
+        if (response.isSuccessful()) {
+
+            mMovieItems = response.body().resultMovieItems;
+            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this::onClick);
+            mRecyclerView.setAdapter(mAdapter);
+
+        } else {
+            Toast.makeText(MainActivity.this, "Error. Fetching data failed :(", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Response code: " + response.code());
+        }
+    }
+
+    public void topRatedMovies() {
         call = apiInterface.topRatedMovies();
         call.enqueue(new Callback<MultipleResource>() {
             @Override
             public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
                 Log.d("LOG: Response Code: ", response.code() + "");
-
-                if(response.isSuccessful()){
-                    MultipleResource resource = response.body();
-                    List<MultipleResource.Movie> moviesList = resource.resultMovieItems;
-                    mMovieItems = new ArrayList<>();
-                    mAdapter = new Adapter(mMovieItems, getApplicationContext());
-                    mRecyclerView.setAdapter(mAdapter);
-
-                    for (MultipleResource.Movie movie : moviesList) {
-                        MultipleResource.Movie movieResut = new MultipleResource.Movie(getMoviePosterUrl("w185", movie.posterPath));
-                        mMovieItems.add(movieResut);
-                    }
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "Error. Fetching data failed :(", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Response code: " + response.code());
-                }
+                fetchingData(response);
             }
 
             @Override
@@ -130,21 +110,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.most_popular:
                 // Call sorting method by most popular
                 mostPopularMovies();
                 Toast.makeText(this, "Sorting by most popular", Toast.LENGTH_SHORT).show();
-              break;
+                break;
             case R.id.top_rated:
                 // Call sorting method by top rated movies
                 topRatedMovies();
                 Toast.makeText(this, "Sorting by top rated", Toast.LENGTH_SHORT).show();
                 break;
-                default:
-                    // unknown error
-                    Toast.makeText(this, "Some Error Bro! :(", Toast.LENGTH_SHORT).show();
+            default:
+                // unknown error
+                Toast.makeText(this, "Some Error Bro! :(", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onClick(int clickedItemIndex) {
+        Intent intent = new Intent(this, MovieDetails.class);
+        intent.putExtra("MOVIE", mMovieItems.get(clickedItemIndex));
+        startActivity(intent);
     }
 }

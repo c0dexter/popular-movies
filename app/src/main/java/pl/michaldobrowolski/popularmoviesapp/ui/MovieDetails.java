@@ -18,13 +18,23 @@ public class MovieDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
-        ImageView imageView = findViewById(R.id.imageView);
-        TextView textView = findViewById(R.id.textView);
-
+        // Get Movie object form intent
         Intent intent = getIntent();
         Movie movie = intent.getParcelableExtra("MOVIE");
 
-        Picasso.get().load(movie.getMoviePosterUrl()).into(imageView);
-        textView.setText(movie.getTitle());
+        // Map UI elements
+        ImageView moviePosterIv = findViewById(R.id.image_movie_poster);
+        TextView movieTitleTv = findViewById(R.id.text_movie_title);
+        TextView movieDescTv = findViewById(R.id.text_movie_description);
+        TextView movieReleaseDate = findViewById(R.id.text_release_date);
+        TextView movieAverageRate = findViewById(R.id.text_average_votes_result);
+
+        // Populate UI elements by using data form a movie object
+        Picasso.get().load(movie.getMoviePosterUrl()).into(moviePosterIv);
+        movieTitleTv.setText(movie.getTitle());
+        movieDescTv.setText(movie.getOverview());
+        movieReleaseDate.setText(movie.getReleaseDate());
+        movieAverageRate.setText(String.valueOf(movie.getVoteAverage()));
+
     }
 }

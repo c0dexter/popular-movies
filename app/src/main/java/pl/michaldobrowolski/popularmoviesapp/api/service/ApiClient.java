@@ -1,5 +1,6 @@
 package pl.michaldobrowolski.popularmoviesapp.api.service;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
@@ -25,13 +26,11 @@ public class ApiClient {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
             @Override
-            public Response intercept(Chain chain) throws IOException {
+            public Response intercept(@NonNull Chain chain) throws IOException {
 
                 Request original = chain.request();
                 HttpUrl httpUrl = original.url();
-
                 HttpUrl newHttpUrl = httpUrl.newBuilder().addQueryParameter("api_key", apiKey).build();
-
                 Request.Builder requestBuilder = original.newBuilder().url(newHttpUrl);
 
                 Request request = requestBuilder.build();

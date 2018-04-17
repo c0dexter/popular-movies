@@ -40,10 +40,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.app_bar);
+        Toolbar myToolbar = findViewById(R.id.app_bar);
         setSupportActionBar(myToolbar);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewMainActivity);
+        mRecyclerView = findViewById(R.id.recyclerViewMainActivity);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             }
 
             @Override
-            public void onFailure(Call<MultipleResource> call, Throwable t) {
+            public void onFailure(@NonNull Call<MultipleResource> call, @NonNull Throwable t) {
                 call.cancel();
                 Log.e(TAG, "onFailure: ", t);
             }
@@ -93,13 +93,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             }
 
             @Override
-            public void onFailure(Call<MultipleResource> call, Throwable t) {
+            public void onFailure(@NonNull Call<MultipleResource> call, @NonNull Throwable t) {
                 call.cancel();
                 Log.e(TAG, "onFailure: ", t);
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -127,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void onClick(int clickedItemIndex) {

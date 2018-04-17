@@ -1,12 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Popular Movies App</string>
-    <string name="movie_thumbnail_desc">Movie thumbnail</string>
-    <string name="title_activity_most_popular">MostPopularActivity</string>
-    <string name="section_format">Hello World from section: %1$d</string>
-    <string name="most_popular">Most popular</string>
-    <string name="top_rated">Top rated</string>
     <string name="release_date_label">Release date:</string>
     <string name="movie_demo_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pulvinar velit tellus, non vestibulum nunc faucibus in. Nam convallis laoreet felis non auctor. Suspendisse fermentum vitae neque vel ullamcorper. Donec sagittis, elit nec ullamcorper finibus, enim tellus vestibulum sapien, sed lacinia magna tortor et elit. Nullam eget aliquet ipsum, a tempor nulla. Suspendisse risus lacus, auctor nec metus id, pellentesque consectetur libero. Sed ultrices accumsan nulla vitae imperdiet. Nullam ante libero, congue a sapien sit amet, egestas dapibus nisl. Cras pulvinar odio ut lorem sollicitudin placerat. Sed vel nisi rhoncus, fringilla eros sed, tristique turpis. Nullam id ligula finibus, vehicula nisl ut, dignissim ex. In hac habitasse platea dictumst. Aenean sed erat ac neque sollicitudin tempus. Sed ut nisl semper, dictum tortor in, convallis orci. Phasellus tincidunt dui orci, non euismod mauris gravida eu. Fusce efficitur at ligula lacinia malesuada.</string>
-    <string name="average_votes_label">Average votes:</string>
-    <string name="image_poster_movie">Image of movie poster</string>
 </resources>

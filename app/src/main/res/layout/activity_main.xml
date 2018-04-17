@@ -6,13 +6,12 @@
     tools:context="pl.michaldobrowolski.popularmoviesapp.ui.MainActivity">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <include
             android:id="@+id/app_bar"
-            layout="@layout/app_toolbar"></include>
+            layout="@layout/app_toolbar" />
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView

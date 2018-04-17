@@ -134,7 +134,6 @@
         tools:text="@string/movie_demo_description" />
 
     <android.support.constraint.Barrier
-        android:id="@+id/barrier2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="left" />

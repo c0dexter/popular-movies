@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Objects;
 
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void fetchingData(@NonNull Response<MultipleResource> response) {
         if (response.isSuccessful()) {
 
-            mMovieItems = response.body().resultMovieItems;
+            mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
             mAdapter = new MovieAdapter(mMovieItems, MainActivity.this::onClick);
             mRecyclerView.setAdapter(mAdapter);
 

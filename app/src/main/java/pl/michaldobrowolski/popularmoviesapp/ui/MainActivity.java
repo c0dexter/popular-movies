@@ -17,6 +17,8 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
@@ -31,20 +33,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private final String TAG = this.getClass().getSimpleName();
 
     ApiInterface apiInterface;
-    private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private List<Movie> mMovieItems;
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
 
+    @BindView(R.id.app_bar)  Toolbar myToolbar;
+    @BindView(R.id.recyclerViewMainActivity) RecyclerView mRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = findViewById(R.id.app_bar);
-        setSupportActionBar(myToolbar);
+        ButterKnife.bind(this);
 
-        mRecyclerView = findViewById(R.id.recyclerViewMainActivity);
+        setSupportActionBar(myToolbar);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);

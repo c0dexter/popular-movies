@@ -11,16 +11,17 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import pl.michaldobrowolski.popularmoviesapp.BuildConfig;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-
     private static final String TAG = ApiClient.class.getClass().getClass().getSimpleName();
 
     public static Retrofit getClient() {
-        final String apiKey = ""; //TODO: remove API Key before makeing a push
+        // https://technobells.com/best-way-to-store-your-api-keys-for-your-android-studio-project-e4b5e8bb7d23
+        final String apiKey = BuildConfig.THE_MOVIE_DB_API_KEY;
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -32,7 +33,6 @@ public class ApiClient {
                 HttpUrl httpUrl = original.url();
                 HttpUrl newHttpUrl = httpUrl.newBuilder().addQueryParameter("api_key", apiKey).build();
                 Request.Builder requestBuilder = original.newBuilder().url(newHttpUrl);
-
                 Request request = requestBuilder.build();
                 return chain.proceed(request);
             }

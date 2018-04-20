@@ -2,7 +2,10 @@ package pl.michaldobrowolski.popularmoviesapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,11 +29,17 @@ public class MovieDetails extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
+        ActionBar actionBar = getSupportActionBar();
         ButterKnife.bind(this);
 
-        // Get Movie object form intent
+        // Get Movie object form intent. Need this for getting object properties
         Intent intent = getIntent();
         Movie movie = intent.getParcelableExtra("MOVIE");
+
+        // Set action bar back button to look like un up button
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         // Populate UI elements by using data form a Movie Object
         Picasso.get().load(movie.getMoviePosterUrl()).into(moviePosterIv);
@@ -38,6 +47,14 @@ public class MovieDetails extends AppCompatActivity {
         movieDescTv.setText(movie.getOverview());
         movieReleaseDate.setText(movie.getReleaseDate());
         movieAverageRate.setText(String.valueOf(movie.getVoteAverage()));
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == android.R.id.home){
+            NavUtils.navigateUpFromSameTask(this);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

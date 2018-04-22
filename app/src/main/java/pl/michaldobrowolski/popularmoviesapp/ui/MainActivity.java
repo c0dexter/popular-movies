@@ -1,6 +1,8 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,7 @@ import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
+import pl.michaldobrowolski.popularmoviesapp.data.FavouritesListDbHelper;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.MovieAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private List<Movie> mMovieItems;
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
+    private SQLiteDatabase mDb;
 
     @BindView(R.id.app_bar)  Toolbar myToolbar;
     @BindView(R.id.recyclerViewMainActivity) RecyclerView mRecyclerView;
@@ -46,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        // Playing with Data Base
+        FavouritesListDbHelper dbHelper = new FavouritesListDbHelper(this);
+        mDb = dbHelper.getWritableDatabase(); // for reading info from db we should use .getReadableDatabase()
+
 
         setSupportActionBar(myToolbar);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -78,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (response.isSuccessful()) {
 
             mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
-            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this::onClick);
+            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this); // MainActivity.this::onClick
             mRecyclerView.setAdapter(mAdapter);
 
         } else {

@@ -22,7 +22,7 @@
         </activity>
         <activity
             android:theme="@style/Theme.AppCompat.Light"
-            android:name=".ui.MovieDetails"
+            android:name=".ui.MovieDetailsActivity"
             android:label="@string/action_details"
             android:parentActivityName=".ui.MainActivity"
             tools:targetApi="jelly_bean">
@@ -30,6 +30,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
+        <!-- STEP: 3 -->
+        <provider
+            android:name="pl.michaldobrowolski.popularmoviesapp.data.TaskContentProvider"
+            android:authorities="pl.michaldobrowolski.popularmoviesapp"
+            android:exported="false"/>
     </application>
 
 </manifest>

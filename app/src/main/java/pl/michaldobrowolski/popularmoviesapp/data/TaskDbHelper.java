@@ -4,15 +4,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import pl.michaldobrowolski.popularmoviesapp.data.FavouritesListContract.FavouritesListEntry;
+import pl.michaldobrowolski.popularmoviesapp.data.TaskContract.FavouritesListEntry;
 
-public class FavouritesListDbHelper extends SQLiteOpenHelper {
+public class TaskDbHelper extends SQLiteOpenHelper {
 
     // Set: DB name, DB version, constructor
     private static final String DATA_BASE_NAME = "favourites.db";
     private static final int DATABASE_VERSION = 1; // increment this if structure of DB would be changed
 
-    public FavouritesListDbHelper(Context context){
+    public TaskDbHelper(Context context){
         super(context, DATA_BASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -22,8 +22,13 @@ public class FavouritesListDbHelper extends SQLiteOpenHelper {
                 FavouritesListEntry.TABLE_NAME + " (" +
                 FavouritesListEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 FavouritesListEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
-                FavouritesListEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL" +
+                FavouritesListEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL," +
+                FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT NOT NULL," +
+                FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT NOT NULL," +
+                FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT NOT NULL," +
+                FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT + " TEXT NOT NULL" +
                 ");";
+
         db.execSQL(SQL_CREATE_FAVOURITES_LIST_TABLE);
     }
 

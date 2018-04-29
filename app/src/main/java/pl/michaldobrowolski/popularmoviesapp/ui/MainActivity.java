@@ -1,8 +1,6 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +24,6 @@ import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
-import pl.michaldobrowolski.popularmoviesapp.data.FavouritesListDbHelper;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.MovieAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,25 +33,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private final String TAG = this.getClass().getSimpleName();
 
     ApiInterface apiInterface;
+    @BindView(R.id.app_bar)
+    Toolbar myToolbar;
+    @BindView(R.id.recyclerViewMainActivity)
+    RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private List<Movie> mMovieItems;
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
-    private SQLiteDatabase mDb;
-
-    @BindView(R.id.app_bar)  Toolbar myToolbar;
-    @BindView(R.id.recyclerViewMainActivity) RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        // Playing with Data Base
-        FavouritesListDbHelper dbHelper = new FavouritesListDbHelper(this);
-        mDb = dbHelper.getWritableDatabase(); // for reading info from db we should use .getReadableDatabase()
-
 
         setSupportActionBar(myToolbar);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -142,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public void onClick(int clickedItemIndex) {
-        Intent intent = new Intent(this, MovieDetails.class);
+        Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra("MOVIE", mMovieItems.get(clickedItemIndex));
         startActivity(intent);
     }

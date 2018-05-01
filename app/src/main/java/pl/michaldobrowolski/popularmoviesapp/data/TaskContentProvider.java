@@ -17,12 +17,13 @@ import static pl.michaldobrowolski.popularmoviesapp.data.TaskContract.Favourites
 
 public class TaskContentProvider extends ContentProvider {
 
+    private TaskDbHelper mTaskDbHelper;
+
     // Const values to using URI Matcher [UriMatcher - Step: 1]
     public static final int TASKS = 100;
     public static final int TASK_WITH_ID = 101;
     // Declare a static variable for Uri matcher that I construct in step #2 [UriMatcher - Step: 3]
     private static final UriMatcher sUriMacher = buildUriMatcher();
-    private TaskDbHelper mTaskDbHelper;
 
     // Define a static method "buildUriMatcher" (based on int match values) [UriMatcher - Step: 2]
     public static UriMatcher buildUriMatcher() {

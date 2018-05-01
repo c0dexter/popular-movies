@@ -1,5 +1,9 @@
 package pl.michaldobrowolski.popularmoviesapp.api.model.pojo;
 
+// Making a POJO classes
+// https://jsonformatter.curiousconcept.com  |  Format JSON response and COPY it
+// http://www.jsonschema2pojo.org  |  PASTE JSON response here and select "GSON" annd click REVIEW
+
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -156,7 +160,6 @@ public class Movie implements Parcelable {
 
     /**
      * This method is using for getting the specific URL to poster image of a specific movie
-     *
      * @return String of valid URL of image based of poster_path
      */
     public String getMoviePosterUrl() {

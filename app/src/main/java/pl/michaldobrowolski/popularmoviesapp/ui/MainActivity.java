@@ -21,7 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
-import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MultipleResource;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MovieListRes;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.MovieAdapter;
@@ -60,22 +60,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     public void mostPopularMovies() {
         call = apiInterface.mostPopularMovies();
-        call.enqueue(new Callback<MultipleResource>() {
+        call.enqueue(new Callback<MovieListRes>() {
             @Override
-            public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
+            public void onResponse(@NonNull Call<MovieListRes> call, @NonNull Response<MovieListRes> response) {
                 Log.d("LOG: Response Code: ", response.code() + "");
                 fetchingData(response);
             }
 
             @Override
-            public void onFailure(@NonNull Call<MultipleResource> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<MovieListRes> call, @NonNull Throwable t) {
                 call.cancel();
                 Log.e(TAG, "onFailure: ", t);
             }
         });
     }
 
-    private void fetchingData(@NonNull Response<MultipleResource> response) {
+    private void fetchingData(@NonNull Response<MovieListRes> response) {
         if (response.isSuccessful()) {
 
             mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
@@ -90,15 +90,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     public void topRatedMovies() {
         call = apiInterface.topRatedMovies();
-        call.enqueue(new Callback<MultipleResource>() {
+        call.enqueue(new Callback<MovieListRes>() {
             @Override
-            public void onResponse(@NonNull Call<MultipleResource> call, @NonNull Response<MultipleResource> response) {
+            public void onResponse(@NonNull Call<MovieListRes> call, @NonNull Response<MovieListRes> response) {
                 Log.d("LOG: Response Code: ", response.code() + "");
                 fetchingData(response);
             }
 
             @Override
-            public void onFailure(@NonNull Call<MultipleResource> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<MovieListRes> call, @NonNull Throwable t) {
                 call.cancel();
                 Log.e(TAG, "onFailure: ", t);
             }

@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     public void mostPopularMovies() {
-        call = apiInterface.mostPopularMovies();
+        call = apiInterface.getMostPopularMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
             public void onResponse(@NonNull Call<MovieListRes> call, @NonNull Response<MovieListRes> response) {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     public void topRatedMovies() {
-        call = apiInterface.topRatedMovies();
+        call = apiInterface.getTopRatedMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
             public void onResponse(@NonNull Call<MovieListRes> call, @NonNull Response<MovieListRes> response) {

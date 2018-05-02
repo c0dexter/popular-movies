@@ -9,4 +9,6 @@
     <string name="image_poster_movie">Image of movie poster</string>
     <string name="action_details">Movie details</string>
     <string name="favourites">Favourites</string>
+    <string name="trailers_label">Trailers</string>
+    <string name="reviews_label">Reviews</string>
 </resources>

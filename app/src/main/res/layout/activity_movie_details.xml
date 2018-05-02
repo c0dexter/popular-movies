@@ -32,7 +32,6 @@
             android:id="@+id/image_movie_poster"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
@@ -41,12 +40,10 @@
             android:adjustViewBounds="true"
             android:contentDescription="@string/image_poster_movie"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
             app:layout_constraintWidth_min="200dp"
             app:srcCompat="@drawable/example_image" />
 
@@ -130,7 +127,6 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:contentDescription="@string/movie_demo_description"
             android:freezesText="false"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -142,20 +138,23 @@
             tools:text="@string/movie_demo_description" />
 
         <TextView
-            android:id="@+id/text_movie_title3"
+            android:id="@+id/text_trailers_label"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/trailers_label"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_movie_description"
+            app:layout_constraintVertical_bias="0.0"
             tools:text="Trailers" />
 
         <android.support.v7.widget.AppCompatImageButton
@@ -180,6 +179,51 @@
             app:layout_constraintTop_toTopOf="@+id/image_movie_poster"
             app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@android:drawable/btn_star_big_off" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_trailers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/text_reviews_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_trailers_label" />
+
+        <TextView
+            android:id="@+id/text_reviews_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/reviews_label"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycler_view_trailers"
+            tools:text="Reviews" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_reviews"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_reviews_label" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

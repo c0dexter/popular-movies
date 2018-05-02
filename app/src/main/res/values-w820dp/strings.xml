@@ -4,4 +4,6 @@
     <string name="movie_demo_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices accumsan nulla vitae imperdiet. Nullam ante libero, congue a sapien sit amet, egestas dapibus nisl. Cras pulvinar odio ut lorem sollicitudin placerat. Sed vel nisi rhoncus, fringilla eros sed, tristique turpis.  Inon euismod mauris gravida eu. Fusce efficitur at ligula lacinia malesuada.</string>
     <string name="action_details">Movie details</string>
     <string name="favourites">Favourites</string>
+    <string name="trailers_label">Trailers</string>
+    <string name="reviews_label">Reviews</string>
 </resources>

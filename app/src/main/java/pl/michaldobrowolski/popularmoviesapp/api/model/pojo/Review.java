@@ -3,22 +3,40 @@ package pl.michaldobrowolski.popularmoviesapp.api.model.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Review implements Parcelable {
+    public static final Creator<Review> CREATOR = new Creator<Review>() {
+        @Override
+        public Review createFromParcel(Parcel source) {
+            return new Review(source);
+        }
+
+        @Override
+        public Review[] newArray(int size) {
+            return new Review[size];
+        }
+    };
+
     @SerializedName("author")
-    @Expose
     public String author;
     @SerializedName("content")
-    @Expose
     public String content;
     @SerializedName("id")
-    @Expose
     public String id;
     @SerializedName("url")
-    @Expose
+
     public String url;
+
+    public Review() {
+    }
+
+    protected Review(Parcel in) {
+        this.author = in.readString();
+        this.content = in.readString();
+        this.id = in.readString();
+        this.url = in.readString();
+    }
 
     @Override
     public int describeContents() {
@@ -32,26 +50,4 @@ public class Review implements Parcelable {
         dest.writeString(this.id);
         dest.writeString(this.url);
     }
-
-    public Review() {
-    }
-
-    protected Review(Parcel in) {
-        this.author = in.readString();
-        this.content = in.readString();
-        this.id = in.readString();
-        this.url = in.readString();
-    }
-
-    public static final Creator<Review> CREATOR = new Creator<Review>() {
-        @Override
-        public Review createFromParcel(Parcel source) {
-            return new Review(source);
-        }
-
-        @Override
-        public Review[] newArray(int size) {
-            return new Review[size];
-        }
-    };
 }

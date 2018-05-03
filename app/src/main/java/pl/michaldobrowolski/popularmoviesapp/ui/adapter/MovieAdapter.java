@@ -14,11 +14,13 @@ import java.util.List;
 
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
+import pl.michaldobrowolski.popularmoviesapp.utils.UtilityHelper;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private final String TAG = this.getClass().getSimpleName();
     private final MovieAdapterOnClickHandler listClickHandler;
     private List<Movie> movieItems;
+    private UtilityHelper utilityHelper = new UtilityHelper();
 
     public MovieAdapter(List<Movie> movieItems, MovieAdapterOnClickHandler listClickHandler) {
         this.movieItems = movieItems;
@@ -36,7 +38,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         ImageView imageView = holder.imageViewMovieThumbnail;
-        String urlId = movieItems.get(position).getMoviePosterUrl();
+        String urlId = utilityHelper.getMoviePosterUrl(movieItems.get(position));
         Picasso.get().load(urlId).into(imageView);
     }
 

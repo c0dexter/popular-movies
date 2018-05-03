@@ -157,28 +157,4 @@ public class Movie implements Parcelable {
         dest.writeString(this.overview);
         dest.writeString(this.releaseDate);
     }
-
-    /**
-     * This method is using for getting the specific URL to poster image of a specific movie
-     * @return String of valid URL of image based of poster_path
-     */
-    public String getMoviePosterUrl() {
-        String url = "";
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme("http")
-                .authority("image.tmdb.org")
-                .appendPath("t")
-                .appendPath("p")
-                .appendPath("w185") // Recommended size of movie poster
-                .appendEncodedPath(this.getPosterPath());
-
-        try {
-            url = builder.build().toString();
-
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-        return url;
-
-    }
 }

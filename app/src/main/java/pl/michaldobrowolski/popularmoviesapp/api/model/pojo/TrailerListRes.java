@@ -33,7 +33,6 @@ public class TrailerListRes implements Parcelable {
     @SerializedName("size")
     public int size;
     @SerializedName("type")
-
     public String type;
 
     public TrailerListRes() {
@@ -65,5 +64,29 @@ public class TrailerListRes implements Parcelable {
         dest.writeString(this.site);
         dest.writeInt(this.size);
         dest.writeString(this.type);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSite() {
+        return site;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public String getType() {
+        return type;
     }
 }

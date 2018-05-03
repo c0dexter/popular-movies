@@ -11,4 +11,6 @@
     <string name="favourites">Favourites</string>
     <string name="trailers_label">Trailers</string>
     <string name="reviews_label">Reviews</string>
+    <string name="play_button_desc">Trailer\'s play image button</string>
+    <string name="image_movie_poster_desc">Trailer\'s thumbnail image</string>
 </resources>

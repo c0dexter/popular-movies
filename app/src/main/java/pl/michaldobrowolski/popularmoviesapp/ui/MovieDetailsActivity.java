@@ -2,12 +2,14 @@ package pl.michaldobrowolski.popularmoviesapp.ui;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +23,9 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,25 +33,20 @@ import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Review;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Trailer;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.TrailerListRes;
+import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
+import pl.michaldobrowolski.popularmoviesapp.ui.adapter.TrailerAdapter;
+import pl.michaldobrowolski.popularmoviesapp.utils.UtilityHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieDetailsActivity extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler {
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
     private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
     private static final String LINEAR_RECYCLER_LAYOUT = "linear_layout";
-    private ApiInterface apiInterface;
-    private int movieId;
-    private String movieTitle;
-    private boolean isFavourite;
-    private SQLiteDatabase mDb;
-    private double averageVotes;
-    private GridLayoutManager gridLayoutManager;
-    private LinearLayoutManager linearLayoutManager;
-
     // Map UI elements by using ButterKnife library
     @BindView(R.id.image_movie_poster)
     ImageView moviePosterIv;
@@ -65,6 +64,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
     RecyclerView trailersRv;
     @BindView(R.id.recycler_view_reviews)
     RecyclerView reviewsRv;
+    private ApiInterface mApiInterface;
+    private int mMovieId;
+    private String movieTitle;
+    private boolean mIsFavourite;
+    private SQLiteDatabase mDb;
+    private double mAverageVotes;
+    private GridLayoutManager mGridLayoutManager;
+    private LinearLayoutManager mLinearLayoutManager;
+    private UtilityHelper mUtilityHelper = new UtilityHelper();
+    private TrailerAdapter mTrailerAdapter;
+    private List<TrailerListRes> mTrailerList;
+    private Call mCall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,36 +87,41 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        mApiInterface = ApiClient.getClient().create(ApiInterface.class);
 
         // Get Movie object form intent. Need this for getting object properties
         Intent intent = getIntent();
         Movie movie = intent.getParcelableExtra("MOVIE");
 
         //
-        gridLayoutManager = new GridLayoutManager(this, 2);
-        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mGridLayoutManager = new GridLayoutManager(this, 1);
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         if (savedInstanceState != null) {
             Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(GRID_RECYCLER_LAYOUT);
             Parcelable linearRecyclerLayoutState = savedInstanceState.getParcelable(LINEAR_RECYCLER_LAYOUT);
             if (linearRecyclerLayoutState != null) {
-                linearLayoutManager.onRestoreInstanceState(linearRecyclerLayoutState);
+                mLinearLayoutManager.onRestoreInstanceState(linearRecyclerLayoutState);
             }
             if (savedRecyclerLayoutState != null) {
-                gridLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
+                mGridLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
             }
         }
+        trailersRv.setLayoutManager(mGridLayoutManager);
+        trailersRv.setItemAnimator(new DefaultItemAnimator());
 
         // Save info about movie (title, ID, average votes) into global variables
-        movieId = movie.getId();
+        mMovieId = movie.getId();
         movieTitle = movie.getTitle();
-        averageVotes = movie.getVoteAverage();
+        mAverageVotes = movie.getVoteAverage();
 
         // Populate UI elements by using data form a Movie Object
-        Picasso.get().load(movie.getMoviePosterUrl()).into(moviePosterIv);
+        Picasso.get().load(mUtilityHelper.getMoviePosterUrl(movie)).into(moviePosterIv);
         movieTitleTv.setText(movie.getTitle());
         movieDescTv.setText(movie.getOverview());
         movieReleaseDateTv.setText(movie.getReleaseDate());
         movieAverageRateTv.setText(String.valueOf(movie.getVoteAverage()));
+
+        getTrailerObjects();
     }
 
     // Back button implementation
@@ -131,12 +147,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void getTrailerObjects() {
-        apiInterface.getMovieTrailers(movieId).enqueue(new Callback<Trailer>() {
+
+        mCall = mApiInterface.getMovieTrailers(mMovieId);
+        mCall.enqueue(new Callback<Trailer>() {
             @Override
             public void onResponse(@NonNull Call<Trailer> call, @NonNull Response<Trailer> response) {
-
-                // TODO: do something with this response (adapter, recycler view)
-
+                fetchingDataForTrailer(response);
             }
 
             @Override
@@ -149,19 +165,49 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void getReviewObjects() {
-        apiInterface.getMovieReviews(movieId).enqueue(new Callback<Review>() {
+
+        mApiInterface.getMovieReviews(mMovieId).enqueue(new Callback<Review>() {
             @Override
             public void onResponse(@NonNull Call<Review> call, @NonNull Response<Review> response) {
-
-                // TODO: do something with this response (adapter, recycler view)
+                //TODO: mCall
             }
 
             @Override
             public void onFailure(@NonNull Call<Review> call, Throwable t) {
                 Log.e(TAG, "Cannot get Review objects!", t);
-                Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get reviews :(", Toast.LENGTH_SHORT);
+                Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get reviews :(", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
+
+    private void fetchingDataForTrailer(Response<Trailer> response) {
+        if (response.isSuccessful()) {
+            mTrailerList = Objects.requireNonNull(response.body()).results;
+            mTrailerAdapter = new TrailerAdapter(mTrailerList, MovieDetailsActivity.this);
+
+            trailersRv.setAdapter(mTrailerAdapter);
+
+        } else {
+            try {
+                Toast.makeText(MovieDetailsActivity.this, response.errorBody().string(), Toast.LENGTH_SHORT)
+                        .show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onClick(int clickedItemIndex) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(UtilityHelper.sUrlContainer.getBaseYoutubeMovieQuery()+ mTrailerList.get(clickedItemIndex).getKey()));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+        else {
+            Toast.makeText(MovieDetailsActivity.this, "Issue with the trailer link :(", Toast.LENGTH_SHORT);
+        }
+    }
+
+
 }

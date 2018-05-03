@@ -21,7 +21,7 @@ public class Trailer implements Parcelable {
             return new Trailer[size];
         }
     };
-    
+
     @SerializedName("id")
     public int id;
     @SerializedName("results")

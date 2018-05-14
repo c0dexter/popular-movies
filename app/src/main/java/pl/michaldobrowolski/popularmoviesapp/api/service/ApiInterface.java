@@ -3,6 +3,7 @@ package pl.michaldobrowolski.popularmoviesapp.api.service;
 
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.MovieListRes;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Review;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.ReviewList;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Trailer;
 import retrofit2.Call;
 import retrofit2.http.GET;

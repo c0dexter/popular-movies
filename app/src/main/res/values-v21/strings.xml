@@ -6,4 +6,7 @@
     <string name="favourites">Favourites</string>
     <string name="trailers_label">Trailers</string>
     <string name="reviews_label">Reviews</string>
+    <string name="text_review_content">Contetnt of text review</string>
+    <string name="movie_review_example">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</string>
+    <string name="btn_close_dialog_review">Close</string>
 </resources>

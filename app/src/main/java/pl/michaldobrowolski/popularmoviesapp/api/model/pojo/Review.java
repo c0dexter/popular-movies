@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Review implements Parcelable {
     public static final Creator<Review> CREATOR = new Creator<Review>() {
         @Override
@@ -18,24 +20,47 @@ public class Review implements Parcelable {
         }
     };
 
-    @SerializedName("author")
-    public String author;
-    @SerializedName("content")
-    public String content;
     @SerializedName("id")
-    public String id;
-    @SerializedName("url")
-
-    public String url;
+    public int id;
+    @SerializedName("page")
+    private int page;
+    @SerializedName("results")
+    private List<ReviewList> results = null;
+    @SerializedName("total_pages")
+    private int totalPages;
+    @SerializedName("total_results")
+    private int totalResults;
 
     public Review() {
     }
 
-    protected Review(Parcel in) {
-        this.author = in.readString();
-        this.content = in.readString();
-        this.id = in.readString();
-        this.url = in.readString();
+    public int getId() {
+        return id;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public List<ReviewList> getResults() {
+        return results;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public int getTotalResults() {
+        return totalResults;
+    }
+
+    private Review(Parcel in) {
+        this.id = in.readInt();
+
+        this.page = in.readInt();
+        this.results = in.createTypedArrayList(ReviewList.CREATOR);
+        this.totalPages = in.readInt();
+        this.totalResults = in.readInt();
     }
 
     @Override
@@ -45,9 +70,10 @@ public class Review implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.author);
-        dest.writeString(this.content);
-        dest.writeString(this.id);
-        dest.writeString(this.url);
+        dest.writeInt(this.id);
+        dest.writeInt(this.page);
+        dest.writeTypedList(this.results);
+        dest.writeInt(this.totalPages);
+        dest.writeInt(this.totalResults);
     }
 }

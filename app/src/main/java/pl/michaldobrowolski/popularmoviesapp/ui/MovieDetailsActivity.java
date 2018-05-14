@@ -1,6 +1,9 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,16 +11,19 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,17 +38,23 @@ import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Movie;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Review;
+import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.ReviewList;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.Trailer;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.TrailerListRes;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
+import pl.michaldobrowolski.popularmoviesapp.data.TaskContract;
+import pl.michaldobrowolski.popularmoviesapp.data.TaskDbHelper;
+import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter;
+import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter.ReviewAdapterOnClickHandler;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.TrailerAdapter;
+import pl.michaldobrowolski.popularmoviesapp.ui.adapter.TrailerAdapter.TrailerAdapterOnClickHandler;
 import pl.michaldobrowolski.popularmoviesapp.utils.UtilityHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieDetailsActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler {
+public class MovieDetailsActivity extends AppCompatActivity implements ReviewAdapterOnClickHandler, TrailerAdapterOnClickHandler {
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
     private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
@@ -74,8 +86,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
     private LinearLayoutManager mLinearLayoutManager;
     private UtilityHelper mUtilityHelper = new UtilityHelper();
     private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
     private List<TrailerListRes> mTrailerList;
+    private List<ReviewList> mReviewList;
     private Call mCall;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +102,19 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        mApiInterface = ApiClient.getClient().create(ApiInterface.class);
 
+        // Handling DB
+        TaskDbHelper dbHelper = new TaskDbHelper(this);
+        mDb = dbHelper.getWritableDatabase();
+        Cursor cursor = getAllFavMovies();
+
+
+        mApiInterface = ApiClient.getClient().create(ApiInterface.class);
         // Get Movie object form intent. Need this for getting object properties
         Intent intent = getIntent();
         Movie movie = intent.getParcelableExtra("MOVIE");
 
-        //
-        mGridLayoutManager = new GridLayoutManager(this, 1);
+        mGridLayoutManager = new GridLayoutManager(this, 2);
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         if (savedInstanceState != null) {
             Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(GRID_RECYCLER_LAYOUT);
@@ -103,11 +123,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
                 mLinearLayoutManager.onRestoreInstanceState(linearRecyclerLayoutState);
             }
             if (savedRecyclerLayoutState != null) {
-                mGridLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
+                mLinearLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
             }
         }
-        trailersRv.setLayoutManager(mGridLayoutManager);
+        trailersRv.setLayoutManager(mLinearLayoutManager); // OR USE mGridLayoutManager
         trailersRv.setItemAnimator(new DefaultItemAnimator());
+        reviewsRv.setLayoutManager(mGridLayoutManager);
+        reviewsRv.setItemAnimator(new DefaultItemAnimator());
+
 
         // Save info about movie (title, ID, average votes) into global variables
         mMovieId = movie.getId();
@@ -122,6 +145,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
         movieAverageRateTv.setText(String.valueOf(movie.getVoteAverage()));
 
         getTrailerObjects();
+        getReviewObjects();
     }
 
     // Back button implementation
@@ -166,26 +190,42 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
 
     private void getReviewObjects() {
 
-        mApiInterface.getMovieReviews(mMovieId).enqueue(new Callback<Review>() {
+        mCall = mApiInterface.getMovieReviews(mMovieId);
+        mCall.enqueue(new Callback<Review>() {
             @Override
             public void onResponse(@NonNull Call<Review> call, @NonNull Response<Review> response) {
-                //TODO: mCall
+                fetchingDataForReview(response);
             }
 
             @Override
             public void onFailure(@NonNull Call<Review> call, Throwable t) {
-                Log.e(TAG, "Cannot get Review objects!", t);
+                Log.e(TAG, "Cannot get ReviewList objects!", t);
                 Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get reviews :(", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
+    private void fetchingDataForReview(Response<Review> response) {
+        if (response.isSuccessful()) {
+            mReviewList = Objects.requireNonNull(response.body()).getResults();
+            mReviewAdapter = new ReviewAdapter(mReviewList, MovieDetailsActivity.this);
+            reviewsRv.setAdapter(mReviewAdapter);
+
+        } else {
+            try {
+                Toast.makeText(MovieDetailsActivity.this, response.errorBody().string(), Toast.LENGTH_SHORT)
+                        .show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void fetchingDataForTrailer(Response<Trailer> response) {
         if (response.isSuccessful()) {
             mTrailerList = Objects.requireNonNull(response.body()).results;
             mTrailerAdapter = new TrailerAdapter(mTrailerList, MovieDetailsActivity.this);
-
             trailersRv.setAdapter(mTrailerAdapter);
 
         } else {
@@ -199,15 +239,51 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailerAd
     }
 
     @Override
-    public void onClick(int clickedItemIndex) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(UtilityHelper.sUrlContainer.getBaseYoutubeMovieQuery()+ mTrailerList.get(clickedItemIndex).getKey()));
+    public void onClickTrailer(int clickedItemIndex) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(UtilityHelper.sUrlContainer.getBaseYoutubeMovieQuery() + mTrailerList.get(clickedItemIndex).getKey()));
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
-        }
-        else {
-            Toast.makeText(MovieDetailsActivity.this, "Issue with the trailer link :(", Toast.LENGTH_SHORT);
+        } else {
+            Toast.makeText(MovieDetailsActivity.this, "Issue with the trailer link :(", Toast.LENGTH_SHORT).show();
         }
     }
 
+    @Override
+    public void onClickReview(int reviewItemPosition) {
+        View mView = getLayoutInflater().inflate(R.layout.dialog_review, null);
+        String fullReview = mReviewList.get(reviewItemPosition).getContent();
+        String author = mReviewList.get(reviewItemPosition).getAuthor();
+        displayModalFullReview(author, fullReview);
+    }
 
+    public void displayModalFullReview(String author, String reviewMsg) {
+        View mView = getLayoutInflater().inflate(R.layout.dialog_review, null);
+        TextView textView = (TextView) mView.findViewById(R.id.text_full_review);
+        textView.setScroller(new Scroller(this));
+        textView.setVerticalScrollBarEnabled(true);
+        textView.setMovementMethod(new ScrollingMovementMethod());
+        AlertDialog dialog = new AlertDialog.Builder(MovieDetailsActivity.this)
+                .setTitle(author + "'s review")
+                .setMessage(reviewMsg)
+                .setNegativeButton(R.string.btn_close_dialog_review, new OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.sym_action_chat)
+                .show();
+        dialog.show();
+    }
+
+    private Cursor getAllFavMovies() {
+        return mDb.query(
+                TaskContract.FavouritesListEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE
+        );
+    }
 }

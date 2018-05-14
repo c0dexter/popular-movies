@@ -22,10 +22,10 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     private final String TAG = this.getClass().getSimpleName();
     private final TrailerAdapterOnClickHandler listClickHandler;
     private List<TrailerListRes> trailerList;
-    private UtilityHelper utilityHelper = new UtilityHelper();
+    private UtilityHelper mUtilityHelper = new UtilityHelper();
 
-    public TrailerAdapter(List<TrailerListRes> data, TrailerAdapterOnClickHandler listClickHandler) {
-        this.trailerList = data;
+    public TrailerAdapter(List<TrailerListRes> dataTrailers, TrailerAdapterOnClickHandler listClickHandler) {
+        this.trailerList = dataTrailers;
         this.listClickHandler = listClickHandler;
     }
 
@@ -41,8 +41,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ImageView imageView = holder.ivTrailerThumbnail;
-        String movieImageUrl = "https://img.youtube.com/vi/" + trailerList.get(position).key + "/0.jpg"; // TODO: remove this if the new functions is working
-        //String movieImageUrl = utilityHelper.getTrailerThumbnailUrl(trailerList.get(position));
+        String movieImageUrl = mUtilityHelper.getTrailerThumbnailUrl(trailerList.get(position));
         Picasso.get().load(movieImageUrl).into(imageView);
     }
 
@@ -53,7 +52,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     }
 
     public interface TrailerAdapterOnClickHandler {
-        void onClick(int clickedItemIndex);
+        void onClickTrailer(int trailerItemPosition);
+
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -70,7 +70,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
         @Override
         public void onClick(View v) {
             int trailerPosition = getAdapterPosition();
-            listClickHandler.onClick(trailerPosition);
+            listClickHandler.onClickTrailer(trailerPosition);
         }
     }
 }

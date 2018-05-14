@@ -21,15 +21,15 @@ public class TrailerListRes implements Parcelable {
     @SerializedName("id")
     public String id;
     @SerializedName("iso_639_1")
-    public String iso6391;
+    private String iso6391;
     @SerializedName("iso_3166_1")
-    public String iso31661;
+    private String iso31661;
     @SerializedName("key")
-    public String key;
+    private String key;
     @SerializedName("name")
     public String name;
     @SerializedName("site")
-    public String site;
+    private String site;
     @SerializedName("size")
     public int size;
     @SerializedName("type")
@@ -38,7 +38,7 @@ public class TrailerListRes implements Parcelable {
     public TrailerListRes() {
     }
 
-    protected TrailerListRes(Parcel in) {
+    private TrailerListRes(Parcel in) {
         this.id = in.readString();
         this.iso6391 = in.readString();
         this.iso31661 = in.readString();

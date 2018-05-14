@@ -35,7 +35,16 @@ public class Trailer implements Parcelable {
         this.results = in.createTypedArrayList(TrailerListRes.CREATOR);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public List<TrailerListRes> getResults() {
+        return results;
+    }
+
     @Override
+
     public int describeContents() {
         return 0;
     }

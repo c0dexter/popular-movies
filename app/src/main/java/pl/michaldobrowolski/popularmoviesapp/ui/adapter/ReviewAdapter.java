@@ -1,6 +1,7 @@
 package pl.michaldobrowolski.popularmoviesapp.ui.adapter;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,13 +11,15 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.ReviewList;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
     private final String TAG = this.getClass().getSimpleName();
-    private List<ReviewList> reviewsList;
     private final ReviewAdapter.ReviewAdapterOnClickHandler listClickHandler;
+    private List<ReviewList> reviewsList;
 
     public ReviewAdapter(List<ReviewList> dataReviews, ReviewAdapterOnClickHandler listClickHandler) {
         this.reviewsList = dataReviews;
@@ -31,10 +34,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.review_item, parent, false);
         view.setFocusable(true);
         return new ViewHolder(view);
-    }
-
-    public interface ReviewAdapterOnClickHandler {
-        void onClickReview(int reviewItemPosition);
     }
 
     @Override
@@ -54,17 +53,20 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         return reviewsList.size();
     }
 
+    public interface ReviewAdapterOnClickHandler {
+        void onClickReview(int reviewItemPosition);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView tvReview;
-        private TextView tvReviewAuthor;
-        private TextView tvFullReview;
+        @BindView(R.id.text_view_review_content)
+        TextView tvReview;
+        @BindView(R.id.text_view_review_author)
+        TextView tvReviewAuthor;
 
         ViewHolder(View itemView) {
             super(itemView);
-            this.tvReview = itemView.findViewById(R.id.text_view_review_content);
-            this.tvReviewAuthor = itemView.findViewById(R.id.text_view_review_author);
-            this.tvFullReview = itemView.findViewById(R.id.text_full_review);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 

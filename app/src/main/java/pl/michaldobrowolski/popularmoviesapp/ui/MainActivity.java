@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (response.isSuccessful()) {
 
             mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
-            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this); // MainActivity.this::onClick
+            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
             mRecyclerView.setAdapter(mAdapter);
 
         } else {

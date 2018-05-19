@@ -59,6 +59,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
     private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
     private static final String LINEAR_RECYCLER_LAYOUT = "linear_layout";
+
     // Map UI elements by using ButterKnife library
     @BindView(R.id.image_movie_poster)
     ImageView moviePosterIv;
@@ -76,6 +77,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     RecyclerView trailersRv;
     @BindView(R.id.recycler_view_reviews)
     RecyclerView reviewsRv;
+
     private ApiInterface mApiInterface;
     private int mMovieId;
     private String movieTitle;
@@ -90,7 +92,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private List<TrailerListRes> mTrailerList;
     private List<ReviewList> mReviewList;
     private Call mCall;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +131,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         trailersRv.setItemAnimator(new DefaultItemAnimator());
         reviewsRv.setLayoutManager(mGridLayoutManager);
         reviewsRv.setItemAnimator(new DefaultItemAnimator());
-
 
         // Save info about movie (title, ID, average votes) into global variables
         mMovieId = movie.getId();
@@ -185,7 +185,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get trailers :(", Toast.LENGTH_SHORT);
             }
         });
-
     }
 
     private void getReviewObjects() {
@@ -203,7 +202,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get reviews :(", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void fetchingDataForReview(Response<Review> response) {

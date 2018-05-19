@@ -13,6 +13,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
 import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.TrailerListRes;
 import pl.michaldobrowolski.popularmoviesapp.utils.UtilityHelper;
@@ -57,13 +59,15 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView ivTrailerThumbnail;
-        ImageButton ibTrailerPlayButton;
+
+        @BindView(R.id.image_view_trailer)
+                ImageView ivTrailerThumbnail;
+        @BindView(R.id.image_button_play)
+                ImageButton ibTrailerPlayButton;
 
         ViewHolder(View itemView) {
             super(itemView);
-            ivTrailerThumbnail = itemView.findViewById(R.id.image_view_trailer);
-            ibTrailerPlayButton = itemView.findViewById(R.id.image_button_play);
+            ButterKnife.bind(this, itemView);
             ibTrailerPlayButton.setOnClickListener(this);
         }
 

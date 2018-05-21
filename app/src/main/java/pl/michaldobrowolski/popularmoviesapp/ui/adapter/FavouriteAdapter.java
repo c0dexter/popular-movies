@@ -12,10 +12,12 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.michaldobrowolski.popularmoviesapp.R;
-import pl.michaldobrowolski.popularmoviesapp.ui.MainActivity;
+import pl.michaldobrowolski.popularmoviesapp.data.TaskContract;
 
 public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.ViewHolder> {
     private final String TAG = this.getClass().getSimpleName();
@@ -47,18 +49,48 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         ImageView ivPosterFavMove = holder.mIvFavMoviePoster;
         TextView tvReleaseDateFavMovie = holder.mTvReleaseDateFavMovie;
         RatingBar rbFavMovie = holder.mRbFavMovie;
-        TextView tvAverageRatingFavMovie = holder.mTvRatingFavMovie;
+        TextView tvAverageVotesFavMovie = holder.mTvAverageVotesFavMovie;
         TextView tvVoteAmoutFavMovie = holder.mTvFavMovieVotesAmount;
-        Button btnRemoveFavMovie = holder.mBtnRemoveFav;
+        //Button btnRemoveFavMovie = holder.mBtnRemoveFav; // TODO: check if this should be here or not
 
         mCursor.moveToPosition(position);
-//        String title = mCursor.getString(MainActivity.MOVIE_TITLE);
-//        titleTextView.setText(title);
+
+        // Title
+        String titleFavMovie;
+        titleFavMovie = mCursor.getString(mCursor.getColumnIndex(TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE));
+        tvTitleFavMovie.setText(titleFavMovie);
+
+        // Movie poster
+        String posterFavMovie; //TODO: Probably I should use int value, because movie poster image for the fav movie should be stored in the phone memory
+        posterFavMovie = mCursor.getString(mCursor.getColumnIndex(TaskContract.FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH));
+        Picasso.get().load(posterFavMovie).into(ivPosterFavMove);
+
+        // Release date
+        String releaseDate;
+        releaseDate = mCursor.getString(mCursor.getColumnIndex(TaskContract.FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE));
+        tvReleaseDateFavMovie.setText(releaseDate);
+
+        // Vote average
+        String voteAverage;
+        voteAverage = mCursor.getString(mCursor.getColumnIndex(TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE));
+        tvAverageVotesFavMovie.setText(voteAverage);
+
+        // Vote Count
+        String voteCount;
+        voteCount = mCursor.getString(mCursor.getColumnIndex(TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT));
+        tvVoteAmoutFavMovie.setText(voteCount);
+
+        // Rating bar
+        float averageVote;
+        averageVote = Float.parseFloat(voteAverage);
+        rbFavMovie.setRating(averageVote);
+
+
     }
 
     @Override
     public int getItemCount() {
-        if (null == mCursor){
+        if (null == mCursor) {
             return 0;
         }
         return mCursor.getCount();
@@ -74,7 +106,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         @BindView(R.id.text_fav_votes_amout)
         TextView mTvFavMovieVotesAmount;
         @BindView(R.id.text_rating_fav_movie)
-        TextView mTvRatingFavMovie;
+        TextView mTvAverageVotesFavMovie;
         @BindView(R.id.text_movie_title)
         TextView mTvFavMovieTitle;
         @BindView(R.id.text_release_date)

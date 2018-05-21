@@ -1,11 +1,13 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -44,7 +46,6 @@ import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.TrailerListRes;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
 import pl.michaldobrowolski.popularmoviesapp.data.TaskContract;
-import pl.michaldobrowolski.popularmoviesapp.data.TaskDbHelper;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter.ReviewAdapterOnClickHandler;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.TrailerAdapter;
@@ -54,11 +55,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static pl.michaldobrowolski.popularmoviesapp.data.TaskContract.BASE_CONTENT_URI;
+
 public class MovieDetailsActivity extends AppCompatActivity implements ReviewAdapterOnClickHandler, TrailerAdapterOnClickHandler {
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
     private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
     private static final String LINEAR_RECYCLER_LAYOUT = "linear_layout";
+    private static boolean isFavourite;
 
     // Map UI elements by using ButterKnife library
     @BindView(R.id.image_movie_poster)
@@ -104,11 +108,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Handling DB
-        TaskDbHelper dbHelper = new TaskDbHelper(this);
-        mDb = dbHelper.getWritableDatabase();
-        Cursor cursor = getAllFavMovies();
-
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
         // Get Movie object form intent. Need this for getting object properties
@@ -127,6 +126,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 mLinearLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
             }
         }
+
         trailersRv.setLayoutManager(mLinearLayoutManager); // OR USE mGridLayoutManager
         trailersRv.setItemAnimator(new DefaultItemAnimator());
         reviewsRv.setLayoutManager(mGridLayoutManager);
@@ -146,6 +146,23 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
 
         getTrailerObjects();
         getReviewObjects();
+
+        //new ContentProviderAsyncTask().execute();
+//        favouriteBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new AsyncTask<Void, Void, Void>() {
+//                    @Override
+//                    protected Void doInBackground(Void... voids) {
+//                        if (isFavourite) {
+//                            int position = deletingFavouriteMovie();
+//                        }
+//                    }
+//                }
+//            }
+//        });
+        //TODO: make onClickListener for onclick on the Fav Button, use an AsyncTask
+
     }
 
     // Back button implementation
@@ -156,18 +173,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
             NavUtils.navigateUpFromSameTask(this);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void markAsFavourite() {
-        favouriteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: use method for checking if the specific movie already exist in the DB
-                // TODO: if not, take all important data and INSERT them into DB
-                // TODO: change flag isFavourite to TRUE
-                // TODO: change appearance of button, fill the shape by using some colour
-            }
-        });
     }
 
     private void getTrailerObjects() {
@@ -273,15 +278,49 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         dialog.show();
     }
 
-    private Cursor getAllFavMovies() {
-        return mDb.query(
-                TaskContract.FavouritesListEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE
-        );
+    private Uri getUri() {
+        return BASE_CONTENT_URI.buildUpon()
+                .appendPath(TaskContract.PATH_FAVOURITES)
+                .appendPath(mMovieId + "")
+                .build();
+    }
+
+    private void changeIconColor() {
+        if (isFavourite) {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_on);
+        } else {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_off);
+        }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+    }
+
+    public class ContentProviderAsyncTask extends AsyncTask<Void, Void, Cursor> {
+
+        @Override
+        protected Cursor doInBackground(Void... voids) {
+            ContentResolver resolver = getContentResolver();
+            Uri CONTENT_URI = getUri();
+            Cursor cursor = resolver.query(CONTENT_URI,
+                    null, null, null, null);
+            return cursor;
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            super.onPostExecute(cursor);
+            if (cursor.getCount() != 0) {
+                isFavourite = true;
+            } else {
+                isFavourite = false;
+            }
+            changeIconColor();
+        }
     }
 }
+
+
+

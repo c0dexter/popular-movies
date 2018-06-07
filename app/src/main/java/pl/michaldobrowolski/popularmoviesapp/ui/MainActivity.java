@@ -41,7 +41,21 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int ID_FAV_MOVIE_LOADER = 100;
+    public static final String[] TABLE_FAVOURITE_MOVIE = {
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE,
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH,
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE,
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE,
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT
+    };
+
+    public static final int COLUMN_MOVIE_TITLE = 0;
+    public static final int COLUMN_MOVIE_POSTER_PATH = 1;
+    public static final int COLUMN_MOVIE_RELEASE_DATE = 2;
+    public static final int COLUMN_MOVIE_VOTE_AVERAGE = 3;
+    public static final int COLUMN_MOVIE_VOTE_COUNT = 4;
+
+    private static final int ID_FAV_MOVIE_LOADER = 300;
     private final String TAG = this.getClass().getSimpleName();
     ApiInterface apiInterface;
     @BindView(R.id.app_bar)
@@ -55,15 +69,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private RecyclerView.LayoutManager mLayoutManager;
     private Call call;
     private FavouriteAdapter favouriteAdapter;
-    private LinearLayoutManager linearLayoutManager;
-
-    public static final String[] TABLE_FAVOURITE_MOVIE = {
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE,
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH,
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE,
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE,
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT
-    };
+    private LinearLayoutManager mLinearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +80,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setSupportActionBar(myToolbar);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mLayoutManager = new GridLayoutManager(this, 2);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
-        // Load by default most popular movies
+        // Load by default most popular movies by default
         mostPopularMovies();
     }
 
     public void mostPopularMovies() {
+        mRecyclerView.setLayoutManager(mLayoutManager);
         call = apiInterface.getMostPopularMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
@@ -100,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private void fetchingData(@NonNull Response<MovieListRes> response) {
         if (response.isSuccessful()) {
-
             mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
             mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
             mRecyclerView.setAdapter(mAdapter);
@@ -112,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     public void topRatedMovies() {
+        mRecyclerView.setLayoutManager(mLayoutManager);
         call = apiInterface.getTopRatedMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
@@ -128,14 +134,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         });
     }
 
-    public void favouriteMoveis() {
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    public void favouriteMovies() {
         favouriteAdapter = new FavouriteAdapter(this);
         mRecyclerView.setAdapter(favouriteAdapter);
         showLoadingPanel();
         getSupportLoaderManager().initLoader(ID_FAV_MOVIE_LOADER, null, this);
+
     }
 
     @Override
@@ -151,20 +155,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.most_popular:
                 // Call sorting method by most popular
                 mostPopularMovies();
-                Toast.makeText(this, "Sorting by most popular", Toast.LENGTH_SHORT).show();
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                Toast.makeText(this, R.string.sorting_most_popular, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.top_rated:
                 // Call sorting method by top rated movies
                 topRatedMovies();
-                Toast.makeText(this, "Sorting by top rated", Toast.LENGTH_SHORT).show();
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                Toast.makeText(this, R.string.sorting_top_rated, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.favourites:
-                favouriteMoveis();
-                Toast.makeText(this, "Favourite movies list", Toast.LENGTH_SHORT).show();
+                // Showing movies from fav list (from DB)
+                favouriteMovies();
+                mRecyclerView.setLayoutManager(mLinearLayoutManager);
+                Toast.makeText(this, R.string.showing_fav_movie_list_msg, Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 // unknown error
-                Toast.makeText(this, "Some Error Bro! :(", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.presenting_movies_default_error, Toast.LENGTH_SHORT).show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -177,20 +185,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(intent);
     }
 
-
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
         // In the activity could be used many loaders, so ID is using for identifying a correct loader
         switch (id) {
             case ID_FAV_MOVIE_LOADER:
-
-                Uri queryUri = TaskContract.CONTENT_URI;
+                Uri queryUri = TaskContract.FavouritesListEntry.CONTENT_URI;
 
                 return new CursorLoader(this,
                         queryUri,
-                        TABLE_FAVOURITE_MOVIE, //TODO: ask about this parameter. I would like to get everything, so could be a NULL value. Am I right?
+                        TABLE_FAVOURITE_MOVIE,
                         null,
                         null,
                         null);
@@ -202,9 +207,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         favouriteAdapter.swapCursor(data);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        if (data.getCount() != 0) { //TODO: why there I get an error with null value?
+        if (data.getCount() != 0)
             showFavMovies();
+        else {
+            Toast toast = Toast.makeText(this, R.string.no_fav_movies_msg, Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
@@ -217,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void showFavMovies() {
         loadingPanel.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
-
     }
 
     private void showLoadingPanel() {

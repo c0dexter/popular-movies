@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 
-
 public class Trailer implements Parcelable {
     public static final Creator<Trailer> CREATOR = new Creator<Trailer>() {
         @Override

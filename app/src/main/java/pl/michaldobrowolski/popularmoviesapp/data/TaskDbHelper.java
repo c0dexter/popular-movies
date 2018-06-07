@@ -10,7 +10,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
 
     // Set: DB name, DB version, constructor
     private static final String DATA_BASE_NAME = "favourites.db";
-    private static final int DATABASE_VERSION = 1; // increment this if structure of DB would be changed
+    private static final int DATABASE_VERSION = 6; // TODO: increment this if structure of DB would be changed
 
     public TaskDbHelper(Context context){
         super(context, DATA_BASE_NAME, null, DATABASE_VERSION);

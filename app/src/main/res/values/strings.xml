@@ -16,4 +16,9 @@
     <string name="text_review_content">Contetnt of text review</string>
     <string name="movie_review_example">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</string>
     <string name="btn_close_dialog_review">Close</string>
+    <string name="no_fav_movies_msg">You have not added any movies to  list yet.</string>
+    <string name="sorting_most_popular">Sorting by most popular</string>
+    <string name="sorting_top_rated">Sorting by top rated</string>
+    <string name="showing_fav_movie_list_msg">Favourite movies list</string>
+    <string name="presenting_movies_default_error">Some Error Bro! :(</string>
 </resources>

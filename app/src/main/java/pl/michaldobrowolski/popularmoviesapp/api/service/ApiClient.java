@@ -28,7 +28,7 @@ public class ApiClient {
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
-            // https://futurestud.io/tutorials/retrofit-2-how-to-add-query-parameters-to-every-request
+                // https://futurestud.io/tutorials/retrofit-2-how-to-add-query-parameters-to-every-request
                 Request original = chain.request();
                 HttpUrl httpUrl = original.url();
                 HttpUrl newHttpUrl = httpUrl.newBuilder().addQueryParameter("api_key", apiKey).build();

@@ -20,20 +20,20 @@ public class TrailerListRes implements Parcelable {
 
     @SerializedName("id")
     public String id;
+    @SerializedName("name")
+    public String name;
+    @SerializedName("size")
+    public int size;
+    @SerializedName("type")
+    public String type;
     @SerializedName("iso_639_1")
     private String iso6391;
     @SerializedName("iso_3166_1")
     private String iso31661;
     @SerializedName("key")
     private String key;
-    @SerializedName("name")
-    public String name;
     @SerializedName("site")
     private String site;
-    @SerializedName("size")
-    public int size;
-    @SerializedName("type")
-    public String type;
 
     public TrailerListRes() {
     }

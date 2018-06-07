@@ -4,10 +4,8 @@ package pl.michaldobrowolski.popularmoviesapp.api.model.pojo;
 // https://jsonformatter.curiousconcept.com  |  Format JSON response and COPY it
 // http://www.jsonschema2pojo.org  |  PASTE JSON response here and select "GSON" annd click REVIEW
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 

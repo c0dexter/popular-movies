@@ -34,6 +34,15 @@ public class Review implements Parcelable {
     public Review() {
     }
 
+    private Review(Parcel in) {
+        this.id = in.readInt();
+
+        this.page = in.readInt();
+        this.results = in.createTypedArrayList(ReviewList.CREATOR);
+        this.totalPages = in.readInt();
+        this.totalResults = in.readInt();
+    }
+
     public int getId() {
         return id;
     }
@@ -52,15 +61,6 @@ public class Review implements Parcelable {
 
     public int getTotalResults() {
         return totalResults;
-    }
-
-    private Review(Parcel in) {
-        this.id = in.readInt();
-
-        this.page = in.readInt();
-        this.results = in.createTypedArrayList(ReviewList.CREATOR);
-        this.totalPages = in.readInt();
-        this.totalResults = in.readInt();
     }
 
     @Override

@@ -52,6 +52,29 @@ public class UtilityHelper {
     }
 
     /**
+     * This method is using for getting the specific URL of movie poster based on URL stored in DB
+     * @return String of valid URL of image based of poster_path
+     */
+    public String getMoviePosterUrl(String imageUrlFromDb) {
+        String url = "";
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("http")
+                .authority("image.tmdb.org")
+                .appendPath("t")
+                .appendPath("p")
+                .appendPath("w185") // Recommended size of movie poster
+                .appendEncodedPath(imageUrlFromDb);
+
+        try {
+            url = builder.build().toString();
+
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        return url;
+    }
+
+    /**
      * This method is using for generating a proper trailer URL of Youtube movie
      * @param trailerListRes - trailer's list
      * @return an URL of specific thumbnail of Youtube movie

@@ -1,11 +1,12 @@
 package pl.michaldobrowolski.popularmoviesapp.ui;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.TrailerListRes;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiClient;
 import pl.michaldobrowolski.popularmoviesapp.api.service.ApiInterface;
 import pl.michaldobrowolski.popularmoviesapp.data.TaskContract;
+import pl.michaldobrowolski.popularmoviesapp.data.TaskContract.FavouritesListEntry;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.ReviewAdapter.ReviewAdapterOnClickHandler;
 import pl.michaldobrowolski.popularmoviesapp.ui.adapter.TrailerAdapter;
@@ -62,7 +64,21 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
     private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
     private static final String LINEAR_RECYCLER_LAYOUT = "linear_layout";
-    private static boolean isFavourite;
+    private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
+    private List<TrailerListRes> mTrailerList;
+    private List<ReviewList> mReviewList;
+    private int mMovieId;
+    private boolean mIsFavourite;
+    private ApiInterface mApiInterface;
+    private GridLayoutManager mGridLayoutManager;
+    private LinearLayoutManager mLinearLayoutManager;
+
+    private Call mCall;
+    private double mAverageVotes;
+    private String movieTitle;
+    private UtilityHelper mUtilityHelper = new UtilityHelper();
+
 
     // Map UI elements by using ButterKnife library
     @BindView(R.id.image_movie_poster)
@@ -82,21 +98,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     @BindView(R.id.recycler_view_reviews)
     RecyclerView reviewsRv;
 
-    private ApiInterface mApiInterface;
-    private int mMovieId;
-    private String movieTitle;
-    private boolean mIsFavourite;
-    private SQLiteDatabase mDb;
-    private double mAverageVotes;
-    private GridLayoutManager mGridLayoutManager;
-    private LinearLayoutManager mLinearLayoutManager;
-    private UtilityHelper mUtilityHelper = new UtilityHelper();
-    private TrailerAdapter mTrailerAdapter;
-    private ReviewAdapter mReviewAdapter;
-    private List<TrailerListRes> mTrailerList;
-    private List<ReviewList> mReviewList;
-    private Call mCall;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,14 +109,21 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
         // Get Movie object form intent. Need this for getting object properties
         Intent intent = getIntent();
         Movie movie = intent.getParcelableExtra("MOVIE");
 
+        // Save info about movie (title, ID, average votes) into global variables
+        mMovieId = movie.getId();
+        movieTitle = movie.getTitle();
+        mAverageVotes = movie.getVoteAverage();
+
+        getTrailerObjects();
+        getReviewObjects();
         mGridLayoutManager = new GridLayoutManager(this, 2);
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
         if (savedInstanceState != null) {
             Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(GRID_RECYCLER_LAYOUT);
             Parcelable linearRecyclerLayoutState = savedInstanceState.getParcelable(LINEAR_RECYCLER_LAYOUT);
@@ -132,37 +140,58 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         reviewsRv.setLayoutManager(mGridLayoutManager);
         reviewsRv.setItemAnimator(new DefaultItemAnimator());
 
-        // Save info about movie (title, ID, average votes) into global variables
-        mMovieId = movie.getId();
-        movieTitle = movie.getTitle();
-        mAverageVotes = movie.getVoteAverage();
-
         // Populate UI elements by using data form a Movie Object
+        supportPostponeEnterTransition();
+        populateDetailsUi(movie);
+
+        new ContentProviderAsyncTask().execute();
+        favouriteBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        if (mIsFavourite) {
+                            int position = deleteFavouriteState();
+                            if (position == 1) {
+                                mIsFavourite = false;
+                            }
+                        } else {
+                            insertingIntoDataBase(movie);
+                            mIsFavourite = true;
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        changeFavIconColor();
+                        showFavActionStatusMessage(mIsFavourite);
+                    }
+                }.execute();
+            }
+        });
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(GRID_RECYCLER_LAYOUT,
+                mGridLayoutManager.onSaveInstanceState());
+        outState.putParcelable(LINEAR_RECYCLER_LAYOUT,
+                mLinearLayoutManager.onSaveInstanceState());
+    }
+
+    private void populateDetailsUi(Movie movie) {
         Picasso.get().load(mUtilityHelper.getMoviePosterUrl(movie)).into(moviePosterIv);
         movieTitleTv.setText(movie.getTitle());
         movieDescTv.setText(movie.getOverview());
         movieReleaseDateTv.setText(movie.getReleaseDate());
         movieAverageRateTv.setText(String.valueOf(movie.getVoteAverage()));
-
-        getTrailerObjects();
-        getReviewObjects();
-
-        //new ContentProviderAsyncTask().execute();
-//        favouriteBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new AsyncTask<Void, Void, Void>() {
-//                    @Override
-//                    protected Void doInBackground(Void... voids) {
-//                        if (isFavourite) {
-//                            int position = deletingFavouriteMovie();
-//                        }
-//                    }
-//                }
-//            }
-//        });
-        //TODO: make onClickListener for onclick on the Fav Button, use an AsyncTask
-
     }
 
     // Back button implementation
@@ -175,6 +204,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         return super.onOptionsItemSelected(item);
     }
 
+    //-------------------------- START HANDLING TRAILERS AND REVIEWS --------------------------//
     private void getTrailerObjects() {
 
         mCall = mApiInterface.getMovieTrailers(mMovieId);
@@ -277,6 +307,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 .show();
         dialog.show();
     }
+    //-------------------------- STOP HANDLING TRAILERS AND REVIEWS  --------------------------//
+
+    //-------------------------- START HANDLING FAVOURITE BUTTON -------------------------- //
 
     private Uri getUri() {
         return BASE_CONTENT_URI.buildUpon()
@@ -285,17 +318,32 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 .build();
     }
 
-    private void changeIconColor() {
-        if (isFavourite) {
-            favouriteBtn.setImageResource(android.R.drawable.star_big_on);
-        } else {
-            favouriteBtn.setImageResource(android.R.drawable.star_big_off);
-        }
-    }
-
     @Override
     protected void onPostResume() {
         super.onPostResume();
+    }
+
+    private int deleteFavouriteState() {
+        ContentResolver resolver = getContentResolver();
+        Uri uri = getUri();
+        int deleted = resolver.delete(uri, null, null);
+        return deleted;
+    }
+
+    private Uri insertingIntoDataBase(Movie movie) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_TITLE, movie.getTitle());
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_ID, movie.getId());
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH, movie.getPosterPath());
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE, movie.getReleaseDate());
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE, movie.getVoteAverage());
+        contentValues.put(FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT, movie.getVoteCount());
+
+        Uri uri = getContentResolver().insert(FavouritesListEntry.CONTENT_URI, contentValues);
+        if (uri != null) {
+            return uri;
+        }
+        return null;
     }
 
     public class ContentProviderAsyncTask extends AsyncTask<Void, Void, Cursor> {
@@ -313,13 +361,29 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         protected void onPostExecute(Cursor cursor) {
             super.onPostExecute(cursor);
             if (cursor.getCount() != 0) {
-                isFavourite = true;
+                mIsFavourite = true;
             } else {
-                isFavourite = false;
+                mIsFavourite = false;
             }
-            changeIconColor();
+            changeFavIconColor();
         }
     }
+    public void showFavActionStatusMessage(boolean isFavourite) {
+        if(isFavourite == true){
+            Toast.makeText(this, "Movie has been added to favourite list", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Movie has been removed from favourite list", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void changeFavIconColor() {
+        if (mIsFavourite) {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_on);
+        } else {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_off);
+        }
+    }
+
 }
 
 

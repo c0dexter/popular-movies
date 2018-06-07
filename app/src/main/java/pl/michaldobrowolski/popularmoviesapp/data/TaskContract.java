@@ -11,9 +11,12 @@ public class TaskContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     public static final String PATH_FAVOURITES = "favourites";
 
-    public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendEncodedPath(PATH_FAVOURITES).build();
+
 
     public static final class FavouritesListEntry implements BaseColumns{
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendEncodedPath(PATH_FAVOURITES).build();
+
         public static final String TABLE_NAME = "favourites";
         public static final String COLUMN_MOVIE_TITLE = "movieTitle";
         public static final String COLUMN_MOVIE_ID = "movieID";

@@ -17,18 +17,24 @@ public class ReviewList implements Parcelable {
             return new ReviewList[size];
         }
     };
+    @SerializedName("url")
 
+    public String url;
     @SerializedName("author")
     private String author;
     @SerializedName("content")
     private String content;
     @SerializedName("id")
     private String id;
-    @SerializedName("url")
-
-    public String url;
 
     public ReviewList() {
+    }
+
+    protected ReviewList(Parcel in) {
+        this.author = in.readString();
+        this.content = in.readString();
+        this.id = in.readString();
+        this.url = in.readString();
     }
 
     public String getAuthor() {
@@ -45,13 +51,6 @@ public class ReviewList implements Parcelable {
 
     public String getUrl() {
         return url;
-    }
-
-    protected ReviewList(Parcel in) {
-        this.author = in.readString();
-        this.content = in.readString();
-        this.id = in.readString();
-        this.url = in.readString();
     }
 
     @Override

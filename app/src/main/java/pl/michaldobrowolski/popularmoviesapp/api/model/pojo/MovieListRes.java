@@ -20,6 +20,7 @@ public class MovieListRes implements Parcelable {
             return new MovieListRes[size];
         }
     };
+
     @SerializedName("page")
     public Integer page;
     @SerializedName("total_results")

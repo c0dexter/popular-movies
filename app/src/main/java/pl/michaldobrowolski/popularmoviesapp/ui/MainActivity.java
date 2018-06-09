@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,6 +41,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
+
     public static final String[] TABLE_FAVOURITE_MOVIE = {
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE,
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH,
@@ -49,14 +50,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT
     };
 
+    // DB columns indexes
     public static final int COLUMN_MOVIE_TITLE = 0;
     public static final int COLUMN_MOVIE_POSTER_PATH = 1;
     public static final int COLUMN_MOVIE_RELEASE_DATE = 2;
     public static final int COLUMN_MOVIE_VOTE_AVERAGE = 3;
     public static final int COLUMN_MOVIE_VOTE_COUNT = 4;
-
     private static final int ID_FAV_MOVIE_LOADER = 300;
+    private static final String STATE_VIEW_MODE_KEY = "stateViewModeKey";
+    private static final String FAVOURITE_MOVIES = "favourite movies";
+    private static final String MOST_POPULAR_MOVIES = "popular movies";
+    private static final String TOP_RATED_MOVIES = "top movies";
+    private static final String RECYCLER_LAYOUT_GRID_TYPE = "grid_layout";
+    private static final String RECYCLER_LAYOUT_LINEAR_TYPE = "linear_layout";
     private final String TAG = this.getClass().getSimpleName();
+
+    // Items mapping
     ApiInterface apiInterface;
     @BindView(R.id.app_bar)
     Toolbar myToolbar;
@@ -66,10 +75,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     ProgressBar loadingPanel;
     private RecyclerView.Adapter mAdapter;
     private List<Movie> mMovieItems;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.LayoutManager mGridLayoutManager;
     private Call call;
     private FavouriteAdapter favouriteAdapter;
     private LinearLayoutManager mLinearLayoutManager;
+    private String stateViewModeValue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,15 +90,48 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         setSupportActionBar(myToolbar);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        mLayoutManager = new GridLayoutManager(this, 2);
+        mGridLayoutManager = new GridLayoutManager(this, 2);
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
-        // Load by default most popular movies by default
-        mostPopularMovies();
+        // Choose and remember a proper view for displaying data scope
+        if (savedInstanceState != null) {
+            stateViewModeValue = savedInstanceState.getString(STATE_VIEW_MODE_KEY);
+            Parcelable savedRecyclerLayoutGridTypeState = savedInstanceState.getParcelable(RECYCLER_LAYOUT_GRID_TYPE);
+            Parcelable savedRecyclerLayoutLinearTypeState = savedInstanceState.getParcelable(RECYCLER_LAYOUT_LINEAR_TYPE);
+            if (savedRecyclerLayoutLinearTypeState != null) {
+                mLinearLayoutManager.onRestoreInstanceState(savedRecyclerLayoutLinearTypeState);
+            }
+            if (savedRecyclerLayoutGridTypeState != null) {
+                mGridLayoutManager.onRestoreInstanceState(savedRecyclerLayoutGridTypeState);
+            }
+
+            switch (stateViewModeValue) {
+                case TOP_RATED_MOVIES:
+                    topRatedMovies();
+                    break;
+                case FAVOURITE_MOVIES:
+                    favouriteMovies();
+                    break;
+                default:
+                    mostPopularMovies();
+            }
+        } else {
+            topRatedMovies();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(STATE_VIEW_MODE_KEY, stateViewModeValue);
+        outState.putParcelable(RECYCLER_LAYOUT_GRID_TYPE,
+                mGridLayoutManager.onSaveInstanceState());
+        outState.putParcelable(RECYCLER_LAYOUT_LINEAR_TYPE,
+                mLinearLayoutManager.onSaveInstanceState());
     }
 
     public void mostPopularMovies() {
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
         call = apiInterface.getMostPopularMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
@@ -104,20 +148,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         });
     }
 
-    private void fetchingData(@NonNull Response<MovieListRes> response) {
-        if (response.isSuccessful()) {
-            mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
-            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
-            mRecyclerView.setAdapter(mAdapter);
-
-        } else {
-            Toast.makeText(MainActivity.this, "Error. Fetching data failed :(", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Response code: " + response.code());
-        }
-    }
-
     public void topRatedMovies() {
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
         call = apiInterface.getTopRatedMovies();
         call.enqueue(new Callback<MovieListRes>() {
             @Override
@@ -135,11 +167,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     public void favouriteMovies() {
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
         favouriteAdapter = new FavouriteAdapter(this);
         mRecyclerView.setAdapter(favouriteAdapter);
         showLoadingPanel();
         getSupportLoaderManager().initLoader(ID_FAV_MOVIE_LOADER, null, this);
 
+    }
+
+    private void fetchingData(@NonNull Response<MovieListRes> response) {
+        if (response.isSuccessful()) {
+            mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
+            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
+            mRecyclerView.setAdapter(mAdapter);
+
+        } else {
+            Toast.makeText(MainActivity.this, "Error. Fetching data failed :(", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Response code: " + response.code());
+        }
     }
 
     @Override
@@ -154,20 +200,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (item.getItemId()) {
             case R.id.most_popular:
                 // Call sorting method by most popular
+                stateViewModeValue = MOST_POPULAR_MOVIES;
                 mostPopularMovies();
-                mRecyclerView.setLayoutManager(mLayoutManager);
                 Toast.makeText(this, R.string.sorting_most_popular, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.top_rated:
                 // Call sorting method by top rated movies
+                stateViewModeValue = TOP_RATED_MOVIES;
                 topRatedMovies();
-                mRecyclerView.setLayoutManager(mLayoutManager);
                 Toast.makeText(this, R.string.sorting_top_rated, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.favourites:
                 // Showing movies from fav list (from DB)
+                stateViewModeValue = FAVOURITE_MOVIES;
                 favouriteMovies();
-                mRecyclerView.setLayoutManager(mLinearLayoutManager);
                 Toast.makeText(this, R.string.showing_fav_movie_list_msg, Toast.LENGTH_SHORT).show();
                 return true;
             default:
@@ -220,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         favouriteAdapter.swapCursor(null);
     }
 
-
     private void showFavMovies() {
         loadingPanel.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
@@ -230,4 +275,5 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setVisibility(View.INVISIBLE);
         loadingPanel.setVisibility(View.VISIBLE);
     }
+
 }

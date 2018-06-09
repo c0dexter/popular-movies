@@ -62,23 +62,8 @@ import static pl.michaldobrowolski.popularmoviesapp.data.TaskContract.BASE_CONTE
 public class MovieDetailsActivity extends AppCompatActivity implements ReviewAdapterOnClickHandler, TrailerAdapterOnClickHandler {
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
-    private static final String GRID_RECYCLER_LAYOUT = "grid_layout";
-    private static final String LINEAR_RECYCLER_LAYOUT = "linear_layout";
-    private TrailerAdapter mTrailerAdapter;
-    private ReviewAdapter mReviewAdapter;
-    private List<TrailerListRes> mTrailerList;
-    private List<ReviewList> mReviewList;
-    private int mMovieId;
-    private boolean mIsFavourite;
-    private ApiInterface mApiInterface;
-    private GridLayoutManager mGridLayoutManager;
-    private LinearLayoutManager mLinearLayoutManager;
-
-    private Call mCall;
-    private double mAverageVotes;
-    private String movieTitle;
-    private UtilityHelper mUtilityHelper = new UtilityHelper();
-
+    private static final String RECYCLER_LAYOUT_GRID_TYPE = "grid_layout";
+    private static final String RECYCLER_LAYOUT_LINEAR_TYPE = "linear_layout";
 
     // Map UI elements by using ButterKnife library
     @BindView(R.id.image_movie_poster)
@@ -97,6 +82,20 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     RecyclerView trailersRv;
     @BindView(R.id.recycler_view_reviews)
     RecyclerView reviewsRv;
+
+    private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
+    private List<TrailerListRes> mTrailerList;
+    private List<ReviewList> mReviewList;
+    private int mMovieId;
+    private boolean mIsFavourite;
+    private ApiInterface mApiInterface;
+    private GridLayoutManager mGridLayoutManager;
+    private LinearLayoutManager mLinearLayoutManager;
+    private Call mCall;
+    private double mAverageVotes;
+    private String movieTitle;
+    private UtilityHelper mUtilityHelper = new UtilityHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,17 +124,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 
         if (savedInstanceState != null) {
-            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(GRID_RECYCLER_LAYOUT);
-            Parcelable linearRecyclerLayoutState = savedInstanceState.getParcelable(LINEAR_RECYCLER_LAYOUT);
-            if (linearRecyclerLayoutState != null) {
-                mLinearLayoutManager.onRestoreInstanceState(linearRecyclerLayoutState);
+            Parcelable savedRecyclerLayoutGridTypeState = savedInstanceState.getParcelable(RECYCLER_LAYOUT_GRID_TYPE);
+            Parcelable savedRecyclerLayoutLinearTypeState = savedInstanceState.getParcelable(RECYCLER_LAYOUT_LINEAR_TYPE);
+            if (savedRecyclerLayoutLinearTypeState != null) {
+                mLinearLayoutManager.onRestoreInstanceState(savedRecyclerLayoutLinearTypeState);
             }
-            if (savedRecyclerLayoutState != null) {
-                mLinearLayoutManager.onRestoreInstanceState(savedRecyclerLayoutState);
+            if (savedRecyclerLayoutGridTypeState != null) {
+                mGridLayoutManager.onRestoreInstanceState(savedRecyclerLayoutGridTypeState);
             }
         }
 
-        trailersRv.setLayoutManager(mLinearLayoutManager); // OR USE mGridLayoutManager
+        // Set different layout managers for TRAILERS RV and REVIEWS RV
+        trailersRv.setLayoutManager(mLinearLayoutManager);
         trailersRv.setItemAnimator(new DefaultItemAnimator());
         reviewsRv.setLayoutManager(mGridLayoutManager);
         reviewsRv.setItemAnimator(new DefaultItemAnimator());
@@ -180,9 +180,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(GRID_RECYCLER_LAYOUT,
+        outState.putParcelable(RECYCLER_LAYOUT_GRID_TYPE,
                 mGridLayoutManager.onSaveInstanceState());
-        outState.putParcelable(LINEAR_RECYCLER_LAYOUT,
+        outState.putParcelable(RECYCLER_LAYOUT_LINEAR_TYPE,
                 mLinearLayoutManager.onSaveInstanceState());
     }
 
@@ -346,6 +346,22 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         return null;
     }
 
+    public void showFavActionStatusMessage(boolean isFavourite) {
+        if (isFavourite == true) {
+            Toast.makeText(this, "Movie has been added to favourite list", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Movie has been removed from favourite list", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void changeFavIconColor() {
+        if (mIsFavourite) {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_on);
+        } else {
+            favouriteBtn.setImageResource(android.R.drawable.star_big_off);
+        }
+    }
+
     public class ContentProviderAsyncTask extends AsyncTask<Void, Void, Cursor> {
 
         @Override
@@ -366,21 +382,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 mIsFavourite = false;
             }
             changeFavIconColor();
-        }
-    }
-    public void showFavActionStatusMessage(boolean isFavourite) {
-        if(isFavourite == true){
-            Toast.makeText(this, "Movie has been added to favourite list", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Movie has been removed from favourite list", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void changeFavIconColor() {
-        if (mIsFavourite) {
-            favouriteBtn.setImageResource(android.R.drawable.star_big_on);
-        } else {
-            favouriteBtn.setImageResource(android.R.drawable.star_big_off);
         }
     }
 

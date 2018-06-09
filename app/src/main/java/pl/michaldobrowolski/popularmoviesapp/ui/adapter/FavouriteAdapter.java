@@ -25,7 +25,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
 
     private final Context mContext;
     private Cursor mCursor;
-    UtilityHelper utilityHelper = new UtilityHelper();
+    private UtilityHelper utilityHelper = new UtilityHelper();
 
     public FavouriteAdapter(Context context) {
         this.mContext = context;
@@ -74,10 +74,9 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         RatingBar rbFavMovie = holder.mRbFavMovie;
         TextView tvAverageVotesFavMovie = holder.mTvAverageVotesFavMovie;
         TextView tvVoteAmountFavMovie = holder.mTvFavMovieVotesAmount;
-        //Button btnRemoveFavMovie = holder.mBtnRemoveFav; // TODO: check if this should be here or not
+        Button btnRemoveFavMovie = holder.mBtnRemoveFav; // TODO: check if this should be here or not
 
         mCursor.moveToPosition(position);
-
         // Title
         String titleFavMovie;
         titleFavMovie = mCursor.getString(MainActivity.COLUMN_MOVIE_TITLE);
@@ -108,6 +107,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         float averageVote;
         averageVote = Float.parseFloat(voteAverage);
         rbFavMovie.setRating(averageVote);
+
     }
 
     @Override
@@ -117,4 +117,6 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         }
         return mCursor.getCount();
     }
+
+
 }

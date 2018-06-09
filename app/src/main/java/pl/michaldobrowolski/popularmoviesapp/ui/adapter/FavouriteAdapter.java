@@ -104,8 +104,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         tvVoteAmountFavMovie.setText(voteCount);
 
         // Rating bar
-        float averageVote;
-        averageVote = Float.parseFloat(voteAverage);
+        float averageVote = Float.parseFloat(voteAverage);
         rbFavMovie.setRating(averageVote);
 
     }

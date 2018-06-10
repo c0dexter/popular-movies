@@ -19,8 +19,8 @@ import pl.michaldobrowolski.popularmoviesapp.utils.UtilityHelper;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private final String TAG = this.getClass().getSimpleName();
     private final MovieAdapterOnClickHandler listClickHandler;
-    private List<Movie> movieItems;
-    private UtilityHelper utilityHelper = new UtilityHelper();
+    private final List<Movie> movieItems;
+    private final UtilityHelper utilityHelper = new UtilityHelper();
 
     public MovieAdapter(List<Movie> movieItems, MovieAdapterOnClickHandler listClickHandler) {
         this.movieItems = movieItems;
@@ -54,7 +54,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        ImageView imageViewMovieThumbnail;
+        final ImageView imageViewMovieThumbnail;
 
         ViewHolder(View itemView) {
             super(itemView);

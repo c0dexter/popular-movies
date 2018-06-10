@@ -22,14 +22,14 @@ public class Trailer implements Parcelable {
     };
 
     @SerializedName("id")
-    public int id;
+    private int id;
     @SerializedName("results")
     public List<TrailerListRes> results = null;
 
     public Trailer() {
     }
 
-    protected Trailer(Parcel in) {
+    private Trailer(Parcel in) {
         this.id = in.readInt();
         this.results = in.createTypedArrayList(TrailerListRes.CREATOR);
     }

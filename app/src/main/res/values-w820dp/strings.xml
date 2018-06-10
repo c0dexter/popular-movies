@@ -14,4 +14,9 @@
     <string name="sorting_top_rated">Sorting by top rated</string>
     <string name="showing_fav_movie_list_msg">Favourite movies list</string>
     <string name="presenting_movies_default_error">Some Error Bro! :(</string>
+    <string name="desc_image_fav_movie_poster">ImageView for displaying movie poster of favourite film</string>
+    <string name="desc_image_icon_zoom_review">Magnifier icon for displaying full review</string>
+    <string name="label_rating_fav_movie">Rating:</string>
+    <string name="label_fav_votes_amount">Votes amount:</string>
+    <string name="button_remove_fav">Remove</string>
 </resources>

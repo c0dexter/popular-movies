@@ -22,18 +22,18 @@ public class MovieListRes implements Parcelable {
     };
 
     @SerializedName("page")
-    public Integer page;
+    private Integer page;
     @SerializedName("total_results")
-    public Integer totalResults;
+    private Integer totalResults;
     @SerializedName("total_pages")
-    public Integer totalPages;
+    private Integer totalPages;
     @SerializedName("results")
     public List<Movie> resultMovieItems = null;
 
     public MovieListRes() {
     }
 
-    protected MovieListRes(Parcel in) {
+    private MovieListRes(Parcel in) {
         this.page = (Integer) in.readValue(Integer.class.getClassLoader());
         this.totalResults = (Integer) in.readValue(Integer.class.getClassLoader());
         this.totalPages = (Integer) in.readValue(Integer.class.getClassLoader());

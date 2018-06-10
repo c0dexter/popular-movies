@@ -17,12 +17,12 @@ import static pl.michaldobrowolski.popularmoviesapp.data.TaskContract.Favourites
 
 public class TaskContentProvider extends ContentProvider {
 
-    public static final int TASKS = 100;
-    public static final int TASK_WITH_ID = 101;
+    private static final int TASKS = 100;
+    private static final int TASK_WITH_ID = 101;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private TaskDbHelper mTaskDbHelper;
 
-    public static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(TaskContract.AUTHORITY, TaskContract.PATH_FAVOURITES, TASKS);
         uriMatcher.addURI(TaskContract.AUTHORITY, TaskContract.PATH_FAVOURITES + "/#", TASK_WITH_ID);
@@ -133,7 +133,7 @@ public class TaskContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Error! Unknown uri: " + uri);
         }
         if (movieDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            Objects.requireNonNull(getContext()).getContentResolver().notifyChange(uri, null);
         }
         return movieDeleted;
     }

@@ -18,7 +18,7 @@ import pl.michaldobrowolski.popularmoviesapp.api.model.pojo.ReviewList;
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
     private final String TAG = this.getClass().getSimpleName();
     private final ReviewAdapter.ReviewAdapterOnClickHandler listClickHandler;
-    private List<ReviewList> reviewsList;
+    private final List<ReviewList> reviewsList;
 
     public ReviewAdapter(List<ReviewList> dataReviews, ReviewAdapterOnClickHandler listClickHandler) {
         this.reviewsList = dataReviews;

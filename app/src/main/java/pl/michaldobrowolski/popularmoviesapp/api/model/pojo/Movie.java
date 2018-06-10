@@ -27,33 +27,33 @@ public class Movie implements Parcelable {
 
     private final static String TAG = Movie.class.getSimpleName();
     @SerializedName("id")
-    public Integer id;
+    private final Integer id;
     @SerializedName("title")
-    public String title;
+    private final String title;
     @SerializedName("vote_count")
-    private Integer voteCount;
+    private final Integer voteCount;
     @SerializedName("video")
-    private Boolean video;
+    private final Boolean video;
     @SerializedName("vote_average")
-    private Double voteAverage;
+    private final Double voteAverage;
     @SerializedName("popularity")
-    private Double popularity;
+    private final Double popularity;
     @SerializedName("poster_path")
-    private String posterPath;
+    private final String posterPath;
     @SerializedName("original_language")
-    private String originalLanguage;
+    private final String originalLanguage;
     @SerializedName("original_title")
-    private String originalTitle;
+    private final String originalTitle;
     @SerializedName("genre_ids")
-    private List<Integer> genreIds;
+    private final List<Integer> genreIds;
     @SerializedName("backdrop_path")
-    private String backdropPath;
+    private final String backdropPath;
     @SerializedName("adult")
-    private Boolean adult;
+    private final Boolean adult;
     @SerializedName("overview")
-    private String overview;
+    private final String overview;
     @SerializedName("release_date")
-    private String releaseDate;
+    private final String releaseDate;
 
     private Movie(Parcel in) {
         this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());

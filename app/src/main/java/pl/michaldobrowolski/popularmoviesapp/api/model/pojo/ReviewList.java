@@ -18,8 +18,7 @@ public class ReviewList implements Parcelable {
         }
     };
     @SerializedName("url")
-
-    public String url;
+    private String url;
     @SerializedName("author")
     private String author;
     @SerializedName("content")
@@ -30,7 +29,7 @@ public class ReviewList implements Parcelable {
     public ReviewList() {
     }
 
-    protected ReviewList(Parcel in) {
+    private ReviewList(Parcel in) {
         this.author = in.readString();
         this.content = in.readString();
         this.id = in.readString();

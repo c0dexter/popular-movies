@@ -23,8 +23,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
 
     private final String TAG = this.getClass().getSimpleName();
     private final TrailerAdapterOnClickHandler listClickHandler;
-    private List<TrailerListRes> trailerList;
-    private UtilityHelper mUtilityHelper = new UtilityHelper();
+    private final List<TrailerListRes> trailerList;
+    private final UtilityHelper mUtilityHelper = new UtilityHelper();
 
     public TrailerAdapter(List<TrailerListRes> dataTrailers, TrailerAdapterOnClickHandler listClickHandler) {
         this.trailerList = dataTrailers;

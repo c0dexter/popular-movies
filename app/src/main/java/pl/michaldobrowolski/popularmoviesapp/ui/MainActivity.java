@@ -40,14 +40,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> { //FavouriteAdapter.FavouriteOnClickHandler
 
-    public static final String[] TABLE_FAVOURITE_MOVIE = {
+    private final String TAG = this.getClass().getSimpleName();
+    private static final int ID_FAV_MOVIE_LOADER = 300;
+
+    private static final String[] TABLE_FAVOURITE_MOVIE = {
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_TITLE,
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_POSTER_PATH,
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_RELEASE_DATE,
             TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_AVERAGE,
-            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_VOTE_COUNT,
+            TaskContract.FavouritesListEntry.COLUMN_MOVIE_ID,
     };
 
     // DB columns indexes
@@ -56,31 +60,31 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public static final int COLUMN_MOVIE_RELEASE_DATE = 2;
     public static final int COLUMN_MOVIE_VOTE_AVERAGE = 3;
     public static final int COLUMN_MOVIE_VOTE_COUNT = 4;
-    private static final int ID_FAV_MOVIE_LOADER = 300;
+    public static final int COLUMN_MOVIE_ID = 5;
+
+    // Save instance status
     private static final String STATE_VIEW_MODE_KEY = "stateViewModeKey";
     private static final String FAVOURITE_MOVIES = "favourite movies";
     private static final String MOST_POPULAR_MOVIES = "popular movies";
     private static final String TOP_RATED_MOVIES = "top movies";
     private static final String RECYCLER_LAYOUT_GRID_TYPE = "grid_layout";
     private static final String RECYCLER_LAYOUT_LINEAR_TYPE = "linear_layout";
-    private final String TAG = this.getClass().getSimpleName();
 
     // Items mapping
-    ApiInterface apiInterface;
+    private ApiInterface apiInterface;
     @BindView(R.id.app_bar)
     Toolbar myToolbar;
     @BindView(R.id.recyclerViewMainActivity)
     RecyclerView mRecyclerView;
     @BindView(R.id.loading_indicator)
     ProgressBar loadingPanel;
-    private RecyclerView.Adapter mAdapter;
     private List<Movie> mMovieItems;
     private RecyclerView.LayoutManager mGridLayoutManager;
     private Call call;
     private FavouriteAdapter favouriteAdapter;
     private LinearLayoutManager mLinearLayoutManager;
     private String stateViewModeValue;
-
+    //private int mMovieId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +120,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     mostPopularMovies();
             }
         } else {
-            topRatedMovies();
+            stateViewModeValue = MOST_POPULAR_MOVIES; // This has been set to handling first rotation on the main screen
+            mostPopularMovies();
         }
     }
 
@@ -130,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mLinearLayoutManager.onSaveInstanceState());
     }
 
-    public void mostPopularMovies() {
+    private void mostPopularMovies() {
+        hideLoadingPanel();
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         call = apiInterface.getMostPopularMovies();
         call.enqueue(new Callback<MovieListRes>() {
@@ -148,7 +154,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         });
     }
 
-    public void topRatedMovies() {
+    private void topRatedMovies() {
+        hideLoadingPanel();
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         call = apiInterface.getTopRatedMovies();
         call.enqueue(new Callback<MovieListRes>() {
@@ -166,10 +173,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         });
     }
 
-    public void favouriteMovies() {
+    private void favouriteMovies() {
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
-        favouriteAdapter = new FavouriteAdapter(this);
+        favouriteAdapter = new FavouriteAdapter(this); //MainActivity.this
         mRecyclerView.setAdapter(favouriteAdapter);
         showLoadingPanel();
         getSupportLoaderManager().initLoader(ID_FAV_MOVIE_LOADER, null, this);
@@ -179,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void fetchingData(@NonNull Response<MovieListRes> response) {
         if (response.isSuccessful()) {
             mMovieItems = Objects.requireNonNull(response.body()).resultMovieItems;
-            mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
+            RecyclerView.Adapter mAdapter = new MovieAdapter(mMovieItems, MainActivity.this);
             mRecyclerView.setAdapter(mAdapter);
 
         } else {
@@ -246,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                         null,
                         null);
             default:
-                throw new RuntimeException("Loader Not Implemented: " + id);
+                throw new RuntimeException("Loader hasn't been implemented yet. Loader ID: " + id);
         }
     }
 
@@ -276,4 +283,30 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         loadingPanel.setVisibility(View.VISIBLE);
     }
 
+    private void hideLoadingPanel() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+        loadingPanel.setVisibility(View.INVISIBLE);
+    }
+
+    // TODO: This code will be used for implementing "REMOVE" button on de Favourite list
+//    @Override
+//    public void onClickFav(String clickedItemIndex) {
+//        deleteFavouriteState();
+//        favouriteAdapter.notifyDataSetChanged();
+//    }
+//
+//    private Uri getUri() {
+//        return BASE_CONTENT_URI.buildUpon()
+//                .appendPath(TaskContract.PATH_FAVOURITES)
+//                .appendPath(favouriteAdapter.getMovieId() + "")
+//                .build();
+//    }
+//
+//    public int deleteFavouriteState() {
+//        ContentResolver resolver = getContentResolver();
+//        Uri uri = getUri();
+//        int deleted = resolver.delete(uri, null, null);
+//        Toast.makeText(this, "Remove this bro", Toast.LENGTH_SHORT).show();
+//        return deleted;
+//    }
 }

@@ -21,7 +21,7 @@ public class Review implements Parcelable {
     };
 
     @SerializedName("id")
-    public int id;
+    private int id;
     @SerializedName("page")
     private int page;
     @SerializedName("results")

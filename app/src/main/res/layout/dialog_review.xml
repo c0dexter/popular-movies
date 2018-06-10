@@ -21,7 +21,6 @@
             tools:text="@string/movie_demo_description" />
 
         <Button
-            android:id="@+id/button_close_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/btn_close_dialog_review" />

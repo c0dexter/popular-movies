@@ -83,8 +83,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     @BindView(R.id.recycler_view_reviews)
     RecyclerView reviewsRv;
 
-    private TrailerAdapter mTrailerAdapter;
-    private ReviewAdapter mReviewAdapter;
     private List<TrailerListRes> mTrailerList;
     private List<ReviewList> mReviewList;
     private int mMovieId;
@@ -93,9 +91,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private GridLayoutManager mGridLayoutManager;
     private LinearLayoutManager mLinearLayoutManager;
     private Call mCall;
-    private double mAverageVotes;
-    private String movieTitle;
-    private UtilityHelper mUtilityHelper = new UtilityHelper();
+    private final UtilityHelper mUtilityHelper = new UtilityHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,8 +111,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
 
         // Save info about movie (title, ID, average votes) into global variables
         mMovieId = movie.getId();
-        movieTitle = movie.getTitle();
-        mAverageVotes = movie.getVoteAverage();
+        String movieTitle = movie.getTitle();
+        double mAverageVotes = movie.getVoteAverage();
 
         getTrailerObjects();
         getReviewObjects();
@@ -215,9 +211,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
             }
 
             @Override
-            public void onFailure(@NonNull Call<Trailer> call, Throwable t) {
+            public void onFailure(@NonNull Call<Trailer> call, @NonNull Throwable t) {
                 Log.e(TAG, "Cannot get trailer objects!", t);
-                Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get trailers :(", Toast.LENGTH_SHORT);
+                Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get trailers :(", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -232,7 +228,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
             }
 
             @Override
-            public void onFailure(@NonNull Call<Review> call, Throwable t) {
+            public void onFailure(@NonNull Call<Review> call, @NonNull Throwable t) {
                 Log.e(TAG, "Cannot get ReviewList objects!", t);
                 Toast.makeText(MovieDetailsActivity.this, "An error has occurred. Cannot get reviews :(", Toast.LENGTH_SHORT).show();
             }
@@ -242,12 +238,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private void fetchingDataForReview(Response<Review> response) {
         if (response.isSuccessful()) {
             mReviewList = Objects.requireNonNull(response.body()).getResults();
-            mReviewAdapter = new ReviewAdapter(mReviewList, MovieDetailsActivity.this);
+            ReviewAdapter mReviewAdapter = new ReviewAdapter(mReviewList, MovieDetailsActivity.this);
             reviewsRv.setAdapter(mReviewAdapter);
 
         } else {
             try {
-                Toast.makeText(MovieDetailsActivity.this, response.errorBody().string(), Toast.LENGTH_SHORT)
+                Toast.makeText(MovieDetailsActivity.this, Objects.requireNonNull(response.errorBody()).string(), Toast.LENGTH_SHORT)
                         .show();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -258,12 +254,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
     private void fetchingDataForTrailer(Response<Trailer> response) {
         if (response.isSuccessful()) {
             mTrailerList = Objects.requireNonNull(response.body()).results;
-            mTrailerAdapter = new TrailerAdapter(mTrailerList, MovieDetailsActivity.this);
+            TrailerAdapter mTrailerAdapter = new TrailerAdapter(mTrailerList, MovieDetailsActivity.this);
             trailersRv.setAdapter(mTrailerAdapter);
 
         } else {
             try {
-                Toast.makeText(MovieDetailsActivity.this, response.errorBody().string(), Toast.LENGTH_SHORT)
+                Toast.makeText(MovieDetailsActivity.this, Objects.requireNonNull(response.errorBody()).string(), Toast.LENGTH_SHORT)
                         .show();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -289,9 +285,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         displayModalFullReview(author, fullReview);
     }
 
-    public void displayModalFullReview(String author, String reviewMsg) {
+    private void displayModalFullReview(String author, String reviewMsg) {
         View mView = getLayoutInflater().inflate(R.layout.dialog_review, null);
-        TextView textView = (TextView) mView.findViewById(R.id.text_full_review);
+        TextView textView = mView.findViewById(R.id.text_full_review);
         textView.setScroller(new Scroller(this));
         textView.setVerticalScrollBarEnabled(true);
         textView.setMovementMethod(new ScrollingMovementMethod());
@@ -318,16 +314,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
                 .build();
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-    }
-
     private int deleteFavouriteState() {
         ContentResolver resolver = getContentResolver();
         Uri uri = getUri();
-        int deleted = resolver.delete(uri, null, null);
-        return deleted;
+        return resolver.delete(uri, null, null);
     }
 
     private Uri insertingIntoDataBase(Movie movie) {
@@ -346,8 +336,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         return null;
     }
 
-    public void showFavActionStatusMessage(boolean isFavourite) {
-        if (isFavourite == true) {
+    private void showFavActionStatusMessage(boolean isFavourite) {
+        if (isFavourite) {
             Toast.makeText(this, "Movie has been added to favourite list", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Movie has been removed from favourite list", Toast.LENGTH_SHORT).show();
@@ -362,15 +352,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements ReviewAda
         }
     }
 
-    public class ContentProviderAsyncTask extends AsyncTask<Void, Void, Cursor> {
+    class ContentProviderAsyncTask extends AsyncTask<Void, Void, Cursor> {
 
         @Override
         protected Cursor doInBackground(Void... voids) {
             ContentResolver resolver = getContentResolver();
             Uri CONTENT_URI = getUri();
-            Cursor cursor = resolver.query(CONTENT_URI,
+            return resolver.query(CONTENT_URI,
                     null, null, null, null);
-            return cursor;
         }
 
         @Override

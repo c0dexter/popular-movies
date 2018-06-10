@@ -33,7 +33,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                card_view:srcCompat="@drawable/example_image" />
+                card_view:srcCompat="@drawable/example_image"
+                android:contentDescription="@string/desc_image_fav_movie_poster" />
 
             <TextView
                 android:id="@+id/text_fav_movie_title"
@@ -45,7 +46,6 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:gravity="center_horizontal"
-                android:text="TextView"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +68,8 @@
                 android:stepSize="0.1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/image_fav_movie_poster"
-                app:layout_constraintTop_toBottomOf="@+id/text_fav_relase_date_movie" />
+                app:layout_constraintTop_toBottomOf="@+id/text_fav_relase_date_movie"
+                tools:targetApi="lollipop" />
 
             <View
                 android:id="@+id/divider"
@@ -112,7 +113,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Rating:"
+                android:text="@string/label_rating_fav_movie"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toStartOf="@+id/divider"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -145,7 +146,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Votes amount:"
+                android:text="@string/label_fav_votes_amount"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toStartOf="@+id/divider"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -179,7 +180,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:text="Remove"
+                android:text="@string/button_remove_fav"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
